@@ -30,6 +30,13 @@ export class SwitchAPI {
   private responseInbound = false;
   private activeInput = 0;
 
+  // Reconnection management
+  private reconnectTimer?: NodeJS.Timeout;
+  private reconnectAttempts = 0;
+  private readonly MAX_RECONNECT_ATTEMPTS = 10;
+  private readonly INITIAL_RECONNECT_DELAY = 1000; // 1 second
+  private readonly MAX_RECONNECT_DELAY = 60000; // 1 minute
+
   constructor(private readonly ip_address: string, platform: TESmartSwitchPlatform, service: Service) {
     this.platform = platform;
     this.service = service;
@@ -39,6 +46,7 @@ export class SwitchAPI {
     this.client.on('connect', () => {
       this.platform.log.info(`Connected to TESmart switch at ${ip_address}`);
       this.connectionState = ConnectionState.CONNECTED;
+      this.reconnectAttempts = 0; // Reset reconnect counter on successful connection
       this.requestActiveInput();
     });
 
@@ -53,16 +61,19 @@ export class SwitchAPI {
     this.client.on('error', (error) => {
       this.platform.log.error(`Socket error for switch at ${ip_address}:`, error.message);
       this.connectionState = ConnectionState.ERROR;
+      // Don't schedule reconnect here - wait for 'close' event
     });
 
     this.client.on('close', () => {
       this.platform.log.warn(`Connection closed for switch at ${ip_address}`);
       this.connectionState = ConnectionState.DISCONNECTED;
+      this.scheduleReconnect();
     });
 
     this.client.on('timeout', () => {
       this.platform.log.error(`Connection timeout for switch at ${ip_address}`);
       this.connectionState = ConnectionState.ERROR;
+      this.client.destroy(); // Force close, which will trigger reconnect
     });
 
     // Attempt connection
@@ -153,9 +164,67 @@ export class SwitchAPI {
    * Disconnect from the switch
    */
   public disconnect(): void {
+    // Cancel any pending reconnection
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = undefined;
+    }
+
     if (this.client) {
       this.connectionState = ConnectionState.DISCONNECTED;
       this.client.destroy();
+    }
+  }
+
+  /**
+   * Schedule a reconnection attempt with exponential backoff
+   */
+  private scheduleReconnect(): void {
+    // Don't reconnect if we've hit the max attempts
+    if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
+      this.platform.log.error(
+        `Max reconnection attempts (${this.MAX_RECONNECT_ATTEMPTS}) reached for switch at ${this.ip_address}. ` +
+        'Please check your network and switch configuration.',
+      );
+      return;
+    }
+
+    // Clear any existing timer
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+    }
+
+    // Calculate backoff delay with exponential increase
+    const delay = Math.min(
+      this.INITIAL_RECONNECT_DELAY * Math.pow(2, this.reconnectAttempts),
+      this.MAX_RECONNECT_DELAY,
+    );
+
+    this.reconnectAttempts++;
+    this.platform.log.info(
+      `Scheduling reconnection attempt ${this.reconnectAttempts}/${this.MAX_RECONNECT_ATTEMPTS} ` +
+      `for switch at ${this.ip_address} in ${delay}ms`,
+    );
+
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnect();
+    }, delay);
+  }
+
+  /**
+   * Attempt to reconnect to the switch
+   */
+  private reconnect(): void {
+    this.platform.log.info(`Attempting to reconnect to switch at ${this.ip_address}...`);
+
+    try {
+      // Create a new socket for reconnection
+      this.client.connect(this.PORT, this.ip_address);
+      this.connectionState = ConnectionState.CONNECTING;
+    } catch (error) {
+      this.platform.log.error(`Reconnection failed for switch at ${this.ip_address}:`, error);
+      this.connectionState = ConnectionState.ERROR;
+      // scheduleReconnect will be called by the 'close' event
     }
   }
 
