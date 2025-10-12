@@ -1,15 +1,252 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "TESmart",
   "pluginType": "platform",
   "singular": true,
   "schema": {
     "type": "object",
     "properties": {
-      "name": {
-        "title": "Name",
-        "type": "string",
-        "required": true,
-        "default": "Example Dynamic Platform"
+      "switches": {
+        "title": "Switches",
+        "type": "array",
+        "items": {
+          "title": "Switch",
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "ip_address": {
+              "title": "IP Address",
+              "type": "string",
+              "format": "ipv4",
+              "default": "192.168.1.10"
+            },
+            "input1": {
+              "title": "Input 1",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 1"
+                }
+              }
+            },
+            "input2": {
+              "title": "Input 2",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 2"
+                }
+              }
+            },
+            "input3": {
+              "title": "Input 3",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 3"
+                }
+              }
+            },
+            "input4": {
+              "title": "Input 4",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 4"
+                }
+              }
+            },
+            "input5": {
+              "title": "Input 5",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 5"
+                }
+              }
+            },
+            "input6": {
+              "title": "Input 6",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 6"
+                }
+              }
+            },
+            "input7": {
+              "title": "Input 7",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 7"
+                }
+              }
+            },
+            "input8": {
+              "title": "Input 8",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 8"
+                }
+              }
+            },
+            "input9": {
+              "title": "Input 9",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 9"
+                }
+              }
+            },
+            "input10": {
+              "title": "Input 10",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 10"
+                }
+              }
+            },
+            "input11": {
+              "title": "Input 11",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 11"
+                }
+              }
+            },
+            "input12": {
+              "title": "Input 12",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 12"
+                }
+              }
+            },
+            "input13": {
+              "title": "Input 13",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 13"
+                }
+              }
+            },
+            "input14": {
+              "title": "Input 14",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 14"
+                }
+              }
+            },
+            "input15": {
+              "title": "Input 15",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 15"
+                }
+              }
+            },
+            "input16": {
+              "title": "Input 16",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "label": {
+                  "type": "string",
+                  "default": "Input 16"
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
