@@ -2,6 +2,8 @@
   "pluginAlias": "TESmart",
   "pluginType": "platform",
   "singular": true,
+  "headerDisplay": "Control your TESmart HDMI/KVM switches through Apple HomeKit. For help and examples, see the [README](https://github.com/thehammer/homebridge-tesmart#readme).",
+  "footerDisplay": "For support, please visit the [GitHub Issues](https://github.com/thehammer/homebridge-tesmart/issues) page.",
   "schema": {
     "type": "object",
     "properties": {
@@ -9,12 +11,14 @@
         "title": "Platform Name",
         "type": "string",
         "default": "TESmart",
-        "required": true
+        "required": true,
+        "description": "Name for this platform (usually just 'TESmart')"
       },
       "switches": {
         "title": "Switches",
         "type": "array",
         "required": true,
+        "description": "Add one or more TESmart HDMI/KVM switches. Each switch will appear as a Television accessory in HomeKit.",
         "items": {
           "title": "Switch",
           "type": "object",
@@ -23,26 +27,52 @@
               "title": "Switch Label",
               "type": "string",
               "required": true,
-              "placeholder": "Living Room HDMI Switch"
+              "placeholder": "Living Room HDMI Switch",
+              "description": "Friendly name for this switch (will appear in HomeKit)"
             },
             "ip_address": {
               "title": "IP Address",
               "type": "string",
               "format": "ipv4",
               "required": true,
-              "default": "192.168.1.10"
+              "placeholder": "192.168.1.10",
+              "description": "Static IP address of your TESmart switch. Make sure to assign a static IP in your router."
+            },
+            "model": {
+              "title": "Model",
+              "type": "string",
+              "required": false,
+              "default": "16x1",
+              "oneOf": [
+                { "title": "8-Port (8x1)", "enum": ["8x1"] },
+                { "title": "16-Port (16x1)", "enum": ["16x1"] }
+              ],
+              "description": "Select your switch model. This determines how many inputs are available."
+            },
+            "polling_interval": {
+              "title": "Polling Interval (ms)",
+              "type": "integer",
+              "default": 1000,
+              "minimum": 500,
+              "maximum": 10000,
+              "description": "How often to check the active input (in milliseconds). Default is 1000ms (1 second)."
             },
             "input1": {
               "title": "Input 1",
               "type": "object",
               "properties": {
                 "enabled": {
+                  "title": "Show in HomeKit",
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Whether this input should be visible in HomeKit"
                 },
                 "label": {
+                  "title": "Label",
                   "type": "string",
-                  "default": "Input 1"
+                  "default": "Input 1",
+                  "placeholder": "Apple TV",
+                  "description": "Friendly name for this input"
                 }
               }
             },
@@ -50,215 +80,187 @@
               "title": "Input 2",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 2"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 2", "placeholder": "PlayStation 5" }
               }
             },
             "input3": {
               "title": "Input 3",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 3"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 3", "placeholder": "Xbox Series X" }
               }
             },
             "input4": {
               "title": "Input 4",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 4"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 4" }
               }
             },
             "input5": {
               "title": "Input 5",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 5"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 5" }
               }
             },
             "input6": {
               "title": "Input 6",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 6"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 6" }
               }
             },
             "input7": {
               "title": "Input 7",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 7"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 7" }
               }
             },
             "input8": {
               "title": "Input 8",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 8"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 8" }
               }
             },
             "input9": {
               "title": "Input 9",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 9"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 9" }
               }
             },
             "input10": {
               "title": "Input 10",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 10"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 10" }
               }
             },
             "input11": {
               "title": "Input 11",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 11"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 11" }
               }
             },
             "input12": {
               "title": "Input 12",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 12"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 12" }
               }
             },
             "input13": {
               "title": "Input 13",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 13"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 13" }
               }
             },
             "input14": {
               "title": "Input 14",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 14"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 14" }
               }
             },
             "input15": {
               "title": "Input 15",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 15"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 15" }
               }
             },
             "input16": {
               "title": "Input 16",
               "type": "object",
               "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "label": {
-                  "type": "string",
-                  "default": "Input 16"
-                }
+                "enabled": { "title": "Show in HomeKit", "type": "boolean", "default": true },
+                "label": { "title": "Label", "type": "string", "default": "Input 16" }
               }
             }
           }
         }
       }
     }
-  }
+  },
+  "layout": [
+    {
+      "type": "help",
+      "helpvalue": "<h5>Getting Started</h5><p>Add your TESmart switches below. Each switch needs a static IP address and will appear as a Television accessory in HomeKit.</p>"
+    },
+    "name",
+    {
+      "key": "switches",
+      "type": "array",
+      "title": "TESmart Switches",
+      "description": "Configure your TESmart HDMI/KVM switches",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "switches[].label",
+        "switches[].ip_address",
+        "switches[].model",
+        "switches[].polling_interval",
+        {
+          "key": "switches[]",
+          "type": "section",
+          "title": "Input Configuration",
+          "expandable": true,
+          "expanded": false,
+          "items": [
+            "switches[].input1.label",
+            "switches[].input1.enabled",
+            "switches[].input2.label",
+            "switches[].input2.enabled",
+            "switches[].input3.label",
+            "switches[].input3.enabled",
+            "switches[].input4.label",
+            "switches[].input4.enabled",
+            "switches[].input5.label",
+            "switches[].input5.enabled",
+            "switches[].input6.label",
+            "switches[].input6.enabled",
+            "switches[].input7.label",
+            "switches[].input7.enabled",
+            "switches[].input8.label",
+            "switches[].input8.enabled",
+            "switches[].input9.label",
+            "switches[].input9.enabled",
+            "switches[].input10.label",
+            "switches[].input10.enabled",
+            "switches[].input11.label",
+            "switches[].input11.enabled",
+            "switches[].input12.label",
+            "switches[].input12.enabled",
+            "switches[].input13.label",
+            "switches[].input13.enabled",
+            "switches[].input14.label",
+            "switches[].input14.enabled",
+            "switches[].input15.label",
+            "switches[].input15.enabled",
+            "switches[].input16.label",
+            "switches[].input16.enabled"
+          ]
+        }
+      ]
+    }
+  ]
 }
