@@ -1,10 +1,13 @@
 {
-  "private": true,
-  "displayName": "Homebridge TESmart Plugin",
+  "displayName": "Homebridge TESmart",
   "name": "homebridge-tesmart",
   "version": "1.0.0",
-  "description": "A Homebridge plugin for controlling TESmart HDMI switches.",
+  "description": "Control TESmart HDMI/KVM switches through Apple HomeKit",
   "license": "Apache-2.0",
+  "author": {
+    "name": "Hammer",
+    "email": "hammeractually@gmail.com"
+  },
   "type": "module",
   "repository": {
     "type": "git",
@@ -13,9 +16,10 @@
   "bugs": {
     "url": "https://github.com/thehammer/homebridge-tesmart/issues"
   },
+  "homepage": "https://github.com/thehammer/homebridge-tesmart#readme",
   "engines": {
     "node": "^18.17.0 || ^20.9.0",
-    "homebridge": "^1.8.0"
+    "homebridge": "^1.8.0 || ^2.0.0-beta.0"
   },
   "main": "dist/index.js",
   "scripts": {
@@ -25,7 +29,17 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
-    "homebridge-plugin"
+    "homebridge-plugin",
+    "homebridge",
+    "tesmart",
+    "hdmi",
+    "hdmi switch",
+    "kvm",
+    "kvm switch",
+    "homekit",
+    "television",
+    "input switching",
+    "av"
   ],
   "devDependencies": {
     "@types/node": "^20.12.13",
