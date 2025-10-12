@@ -24,9 +24,51 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
       log.success = log.info;
     }
 
+    // Validate configuration before starting
+    if (!this.validateConfig(config)) {
+      this.log.error('Invalid configuration. Plugin will not start.');
+      this.log.error('Please configure at least one TESmart switch in the Homebridge settings.');
+      return;
+    }
+
     this.api.on('didFinishLaunching', () => {
       this.discoverDevices(config);
     });
+  }
+
+  /**
+   * Validates the plugin configuration
+   */
+  private validateConfig(config: PlatformConfig): boolean {
+    // Check if switches array exists and is not empty
+    if (!config.switches || !Array.isArray(config.switches) || config.switches.length === 0) {
+      this.log.error('Configuration error: No switches configured');
+      return false;
+    }
+
+    // Validate each switch configuration
+    for (let i = 0; i < config.switches.length; i++) {
+      const switchConfig = config.switches[i];
+
+      if (!switchConfig.label || typeof switchConfig.label !== 'string') {
+        this.log.error(`Configuration error: Switch ${i + 1} is missing a label`);
+        return false;
+      }
+
+      if (!switchConfig.ip_address || typeof switchConfig.ip_address !== 'string') {
+        this.log.error(`Configuration error: Switch "${switchConfig.label}" is missing an IP address`);
+        return false;
+      }
+
+      // Validate IP address format
+      const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+      if (!ipRegex.test(switchConfig.ip_address)) {
+        this.log.error(`Configuration error: Switch "${switchConfig.label}" has invalid IP address: ${switchConfig.ip_address}`);
+        return false;
+      }
+    }
+
+    return true;
   }
 
   configureAccessory(accessory: PlatformAccessory) {

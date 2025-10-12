@@ -5,20 +5,31 @@
   "schema": {
     "type": "object",
     "properties": {
+      "name": {
+        "title": "Platform Name",
+        "type": "string",
+        "default": "TESmart",
+        "required": true
+      },
       "switches": {
         "title": "Switches",
         "type": "array",
+        "required": true,
         "items": {
           "title": "Switch",
           "type": "object",
           "properties": {
             "label": {
-              "type": "string"
+              "title": "Switch Label",
+              "type": "string",
+              "required": true,
+              "placeholder": "Living Room HDMI Switch"
             },
             "ip_address": {
               "title": "IP Address",
               "type": "string",
               "format": "ipv4",
+              "required": true,
               "default": "192.168.1.10"
             },
             "input1": {
