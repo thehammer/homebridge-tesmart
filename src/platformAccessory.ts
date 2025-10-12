@@ -19,16 +19,21 @@ export class TESmartSwitchAccessory {
     const config = this.accessory.context.device;
     this.inputs = [];
 
-    this.accessory.getService(Service.AccessoryInformation)!
-      .setCharacteristic(Characteristic.Manufacturer, 'TESmart');
-    this.accessory.category = Categories.TV_SET_TOP_BOX;
+    try {
+      this.accessory.getService(Service.AccessoryInformation)!
+        .setCharacteristic(Characteristic.Manufacturer, 'TESmart');
+      this.accessory.category = Categories.TV_SET_TOP_BOX;
 
-    // this.switchService = this.accessory.getService(Service.TargetControl) ||
-    //                      this.accessory.addService(Service.TargetControl);
-    this.switchService = this.accessory.getService(Service.Television) ||
-                         this.accessory.addService(Service.Television);
+      // this.switchService = this.accessory.getService(Service.TargetControl) ||
+      //                      this.accessory.addService(Service.TargetControl);
+      this.switchService = this.accessory.getService(Service.Television) ||
+                           this.accessory.addService(Service.Television);
 
-    this.switchAPI = new SwitchAPI(config.ip_address, this.platform, this.switchService);
+      this.switchAPI = new SwitchAPI(config.ip_address, this.platform, this.switchService);
+    } catch (error) {
+      this.platform.log.error(`Failed to initialize accessory "${config.label}":`, error);
+      throw error;
+    }
 
     this.switchService.setCharacteristic(Characteristic.Name, accessory.context.device.label);
     this.switchService.setCharacteristic(Characteristic.Active, Characteristic.Active.ACTIVE);

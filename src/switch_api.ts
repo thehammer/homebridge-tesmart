@@ -7,6 +7,7 @@ export class SwitchAPI {
   private platform;
   private service;
   private client;
+  private isConnected = false;
   private prefix = '\xAA\xBB\x03';
   private suffix = '\xEE';
   private switch = '\x01';
@@ -29,9 +30,44 @@ export class SwitchAPI {
     this.platform = platform;
     this.service = service;
     this.client = new Socket();
-    this.client.connect(5000, ip_address);
-    this.client.on('data', (data) => this.receive(data));
-    this.requestActiveInput();
+
+    // Set up socket event handlers
+    this.client.on('connect', () => {
+      this.platform.log.info(`Connected to TESmart switch at ${ip_address}`);
+      this.isConnected = true;
+      this.requestActiveInput();
+    });
+
+    this.client.on('data', (data) => {
+      try {
+        this.receive(data);
+      } catch (error) {
+        this.platform.log.error('Error processing data from switch:', error);
+      }
+    });
+
+    this.client.on('error', (error) => {
+      this.platform.log.error(`Socket error for switch at ${ip_address}:`, error.message);
+      this.isConnected = false;
+    });
+
+    this.client.on('close', () => {
+      this.platform.log.warn(`Connection closed for switch at ${ip_address}`);
+      this.isConnected = false;
+    });
+
+    this.client.on('timeout', () => {
+      this.platform.log.error(`Connection timeout for switch at ${ip_address}`);
+      this.isConnected = false;
+    });
+
+    // Attempt connection
+    try {
+      this.client.connect(5000, ip_address);
+    } catch (error) {
+      this.platform.log.error(`Failed to connect to switch at ${ip_address}:`, error);
+      this.isConnected = false;
+    }
   }
 
   activeInput() {
@@ -73,7 +109,18 @@ export class SwitchAPI {
   }
 
   private send(command: string) {
-    this.client.write(Buffer.from(this.prefix + command + this.suffix, 'binary'));
+    if (!this.isConnected) {
+      this.platform.log.warn('Cannot send command - not connected to switch');
+      return false;
+    }
+
+    try {
+      this.client.write(Buffer.from(this.prefix + command + this.suffix, 'binary'));
+      return true;
+    } catch (error) {
+      this.platform.log.error('Error sending command to switch:', error);
+      return false;
+    }
   }
 
   private receive(data: Buffer) {

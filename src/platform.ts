@@ -79,35 +79,40 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
 
   discoverDevices(config: PlatformConfig) {
     config.switches.forEach((aSwitch: PlatformConfig, index: number) => {
-      this.log.debug(JSON.stringify(aSwitch));
+      try {
+        this.log.debug(JSON.stringify(aSwitch));
 
-      const uuid = this.api.hap.uuid.generate(config.platform + ':Switch' + index);
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+        const uuid = this.api.hap.uuid.generate(config.platform + ':Switch' + index);
+        const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
-      if (existingAccessory) {
-        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. e.g.:
-        // existingAccessory.context.device = device;
-        // this.api.updatePlatformAccessories([existingAccessory]);
+        if (existingAccessory) {
+          // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. e.g.:
+          // existingAccessory.context.device = device;
+          // this.api.updatePlatformAccessories([existingAccessory]);
 
-        // create the accessory handler for the restored accessory
-        // this is imported from `platformAccessory.ts`
-        new TESmartSwitchAccessory(this, existingAccessory);
+          // create the accessory handler for the restored accessory
+          // this is imported from `platformAccessory.ts`
+          new TESmartSwitchAccessory(this, existingAccessory);
 
-        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, e.g.:
-        // remove platform accessories when no longer present
-        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-      } else {
-        this.log.info('Adding new accessory: ', aSwitch.label);
-        const accessory = new this.api.platformAccessory(aSwitch.label, uuid);
+          // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, e.g.:
+          // remove platform accessories when no longer present
+          // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+          // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+        } else {
+          this.log.info('Adding new accessory: ', aSwitch.label);
+          const accessory = new this.api.platformAccessory(aSwitch.label, uuid);
 
-        accessory.context.device = aSwitch;
-        accessory.category = this.api.hap.Categories.OTHER;
+          accessory.context.device = aSwitch;
+          accessory.category = this.api.hap.Categories.OTHER;
 
-        new TESmartSwitchAccessory(this, accessory);
+          new TESmartSwitchAccessory(this, accessory);
 
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-        // this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
+          this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+          // this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
+        }
+      } catch (error) {
+        this.log.error(`Failed to setup accessory "${aSwitch.label}":`, error);
+        this.log.error('This accessory will be skipped. Please check your configuration and network connection.');
       }
     });
   }
