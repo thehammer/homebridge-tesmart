@@ -55,7 +55,7 @@ export class SwitchAPI {
   }
 
   setLEDTimeoutNever() {
-    this.send(this.led_timeout_30s);
+    this.send(this.led_timeout_never);
   }
 
   muteBuzzer() {
@@ -64,6 +64,12 @@ export class SwitchAPI {
 
   unmuteBuzzer() {
     this.send(this.unmute_buzzer);
+  }
+
+  disconnect() {
+    if (this.client) {
+      this.client.destroy();
+    }
   }
 
   private send(command: string) {

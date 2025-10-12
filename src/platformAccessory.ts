@@ -8,6 +8,7 @@ export class TESmartSwitchAccessory {
   private switchService: Service;
   private switchAPI: SwitchAPI;
   private inputs: Array<Service>;
+  private pollingInterval?: NodeJS.Timeout;
 
   constructor(
     private readonly platform: TESmartSwitchPlatform,
@@ -51,9 +52,15 @@ export class TESmartSwitchAccessory {
       });
 
     for (let identifier = 1; identifier <= 16; identifier++) {
-      displayOrder.concat([identifier]);
       const input = 'input' + identifier;
       const inputConfig = config[input];
+
+      // Skip if input config is not defined
+      if (!inputConfig) {
+        continue;
+      }
+
+      displayOrder.push(identifier);
       this.platform.log('Input' + identifier, inputConfig.label);
       const existingInput = this.switchService.linkedServices.find(source => source.subtype === input);
 
@@ -84,9 +91,21 @@ export class TESmartSwitchAccessory {
     this.switchService.getCharacteristic(Characteristic.DisplayOrder)
       .updateValue(this.platform.api.hap.encode(1, displayOrder).toString('base64'));
 
-    setInterval(() => {
+    // Poll for active input changes every second
+    this.pollingInterval = setInterval(() => {
       this.switchService.getCharacteristic(Characteristic.ActiveIdentifier).updateValue(this.switchAPI.activeInput());
     }, 1000);
+  }
+
+  /**
+   * Clean up resources when accessory is removed
+   */
+  destroy() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = undefined;
+    }
+    this.switchAPI.disconnect();
   }
 
   handleActiveGet() {
