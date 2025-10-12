@@ -1,191 +1,290 @@
-<p align="center">
+# Homebridge TESmart
 
-<img src="https://github.com/homebridge/branding/raw/latest/logos/homebridge-wordmark-logo-vertical.png" width="150">
+[![npm version](https://badge.fury.io/js/homebridge-tesmart.svg)](https://www.npmjs.com/package/homebridge-tesmart)
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 
-</p>
+Control your TESmart HDMI/KVM switches through Apple HomeKit using Homebridge.
 
-<span align="center">
+## Features
 
-# Homebridge Platform Plugin Template
+- 🎮 Control TESmart HDMI/KVM switches from the Home app
+- 📱 Switch between up to 16 HDMI inputs
+- 🔄 Automatic reconnection with exponential backoff
+- ⚙️ Easy configuration through Homebridge UI
+- 🏷️ Custom labels for each input
+- 👁️ Hide/show specific inputs in HomeKit
+- 🔧 Configurable polling interval
+- 📡 Supports multiple switches
 
-</span>
+## Compatibility
 
-This is a template Homebridge dynamic platform plugin and can be used as a base to help you get started developing your own plugin.
+**Tested Models:**
+- TESmart HSW1601A1U (16x1 HDMI Switch)
 
-This template should be used in conjunction with the [developer documentation](https://developers.homebridge.io/). A full list of all supported service types, and their characteristics is available on this site.
+**Expected to Work:**
+- TESmart 8x1 HDMI Switches
+- Other TESmart switches using the same TCP protocol (port 5000)
 
-### Clone As Template
+If you've tested this plugin with other models, please [open an issue](https://github.com/thehammer/homebridge-tesmart/issues) to let us know!
 
-Click the link below to create a new GitHub Repository using this template, or click the *Use This Template* button above.
+## Requirements
 
-<span align="center">
+- **Homebridge** v1.8.0 or later
+- **Node.js** v18.17.0 or v20.9.0 or later
+- TESmart HDMI/KVM switch with network connectivity
+- **Static IP address** assigned to your TESmart switch
 
-### [Create New Repository From Template](https://github.com/homebridge/homebridge-plugin-template/generate)
+## Installation
 
-</span>
+### Option 1: Homebridge UI (Recommended)
 
-### Setup Development Environment
+1. Search for "TESmart" in the Homebridge UI plugins page
+2. Click **Install**
+3. Configure your switches using the settings UI
 
-To develop Homebridge plugins you must have Node.js 18 or later installed, and a modern code editor such as [VS Code](https://code.visualstudio.com/). This plugin template uses [TypeScript](https://www.typescriptlang.org/) to make development easier and comes with pre-configured settings for [VS Code](https://code.visualstudio.com/) and ESLint. If you are using VS Code install these extensions:
+### Option 2: Command Line
 
-- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
-
-### Install Development Dependencies
-
-Using a terminal, navigate to the project folder and run this command to install the development dependencies:
-
-```shell
-npm install
+```bash
+npm install -g homebridge-tesmart
 ```
 
-### Update package.json
+## Configuration
 
-Open the [`package.json`](./package.json) and change the following attributes:
+### Using Homebridge UI (Recommended)
 
-- `name` - this should be prefixed with `homebridge-` or `@username/homebridge-`, is case-sensitive, and contains no spaces nor special characters apart from a dash `-`
-- `displayName` - this is the "nice" name displayed in the Homebridge UI
-- `repository.url` - Link to your GitHub repo
-- `bugs.url` - Link to your GitHub repo issues page
+1. Navigate to the **Plugins** page in Homebridge UI
+2. Find **Homebridge TESmart** and click **Settings**
+3. Add your switch(es):
+   - **Switch Label**: Friendly name (e.g., "Living Room HDMI")
+   - **IP Address**: Static IP of your TESmart switch
+   - **Model**: Select your switch model (8x1 or 16x1)
+   - **Polling Interval**: How often to check active input (default: 1000ms)
+4. Configure each input:
+   - **Label**: Name for the input (e.g., "Apple TV", "PlayStation 5")
+   - **Show in HomeKit**: Toggle to hide/show this input
+5. Save and restart Homebridge
 
-When you are ready to publish the plugin you should set `private` to false, or remove the attribute entirely.
+### Manual Configuration
 
-### Update Plugin Defaults
+Add this to your Homebridge `config.json`:
 
-Open the [`src/settings.ts`](./src/settings.ts) file and change the default values:
-
-- `PLATFORM_NAME` - Set this to be the name of your platform. This is the name of the platform that users will use to register the plugin in the Homebridge `config.json`.
-- `PLUGIN_NAME` - Set this to be the same name you set in the [`package.json`](./package.json) file. 
-
-Open the [`config.schema.json`](./config.schema.json) file and change the following attribute:
-
-- `pluginAlias` - set this to match the `PLATFORM_NAME` you defined in the previous step.
-
-### Build Plugin
-
-TypeScript needs to be compiled into JavaScript before it can run. The following command will compile the contents of your [`src`](./src) directory and put the resulting code into the `dist` folder.
-
-```shell
-npm run build
-```
-
-### Link To Homebridge
-
-Run this command so your global installation of Homebridge can discover the plugin in your development environment:
-
-```shell
-npm link
-```
-
-You can now start Homebridge, use the `-D` flag, so you can see debug log messages in your plugin:
-
-```shell
-homebridge -D
-```
-
-### Watch For Changes and Build Automatically
-
-If you want to have your code compile automatically as you make changes, and restart Homebridge automatically between changes, you first need to add your plugin as a platform in `~/.homebridge/config.json`:
-```
+```json
 {
-...
-    "platforms": [
+  "platforms": [
+    {
+      "platform": "TESmart",
+      "name": "TESmart",
+      "switches": [
         {
-            "name": "Config",
-            "port": 8581,
-            "platform": "config"
-        },
-        {
-            "name": "<PLUGIN_NAME>",
-            //... any other options, as listed in config.schema.json ...
-            "platform": "<PLATFORM_NAME>"
+          "label": "Living Room HDMI Switch",
+          "ip_address": "192.168.1.100",
+          "model": "16x1",
+          "polling_interval": 1000,
+          "input1": {
+            "label": "Apple TV",
+            "enabled": true
+          },
+          "input2": {
+            "label": "PlayStation 5",
+            "enabled": true
+          },
+          "input3": {
+            "label": "Xbox Series X",
+            "enabled": true
+          },
+          "input4": {
+            "label": "Nintendo Switch",
+            "enabled": true
+          }
         }
-    ]
+      ]
+    }
+  ]
 }
 ```
 
-and then you can run:
+### Configuration Options
 
-```shell
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `platform` | string | `"TESmart"` | **Required.** Must be "TESmart" |
+| `name` | string | `"TESmart"` | Platform name |
+| `switches` | array | `[]` | **Required.** Array of switch configurations |
+
+#### Switch Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `label` | string | - | **Required.** Friendly name for the switch |
+| `ip_address` | string | - | **Required.** Static IP address of the switch |
+| `model` | string | `"16x1"` | Switch model: `"8x1"` or `"16x1"` |
+| `polling_interval` | number | `1000` | Polling interval in milliseconds (500-10000) |
+| `input1` - `input16` | object | - | Input configuration (see below) |
+
+#### Input Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `label` | string | `"Input N"` | Friendly name for this input |
+| `enabled` | boolean | `true` | Whether to show this input in HomeKit |
+
+## Setup Guide
+
+### 1. Assign Static IP to Your TESmart Switch
+
+**Important:** Your TESmart switch must have a static IP address.
+
+**Option A: Router DHCP Reservation (Recommended)**
+1. Find your switch's MAC address
+2. Log into your router admin panel
+3. Create a DHCP reservation for the switch's MAC address
+4. Reboot the switch
+
+**Option B: TESmart Configuration Tool**
+- Use the TESmart configuration software to assign a static IP
+- Refer to your switch's manual for detailed instructions
+
+### 2. Test Connectivity
+
+```bash
+# Test if the switch is reachable
+ping 192.168.1.100
+
+# Test if port 5000 is open (on macOS/Linux)
+nc -zv 192.168.1.100 5000
+```
+
+### 3. Configure in Homebridge
+
+Follow the configuration steps above using either the UI or manual config.
+
+### 4. Restart Homebridge
+
+The switch will appear as a **Television** accessory in HomeKit.
+
+## Usage
+
+### In the Home App
+
+1. Open the **Home** app on your iPhone/iPad
+2. Find your TESmart switch (listed as a TV)
+3. Tap to view inputs
+4. Select an input to switch to it
+
+### With Siri
+
+- "Switch Living Room HDMI to Apple TV"
+- "Change Living Room HDMI to PlayStation 5"
+
+### In Automation
+
+Use HomeKit automations to automatically switch inputs based on:
+- Time of day
+- When you arrive/leave home
+- When other accessories are triggered
+
+## Troubleshooting
+
+### Switch Not Appearing in HomeKit
+
+1. **Check Homebridge logs** for error messages
+2. **Verify IP address** - Can you ping the switch?
+3. **Check port 5000** - Ensure it's not blocked by a firewall
+4. **Static IP** - Make sure the switch has a static IP
+5. **Restart Homebridge** after configuration changes
+
+### Connection Issues
+
+The plugin includes automatic reconnection with exponential backoff. If the connection is lost:
+- It will attempt to reconnect up to 10 times
+- Delays increase exponentially: 1s, 2s, 4s, 8s... up to 60s
+- Check Homebridge logs for reconnection status
+
+### Inputs Not Switching
+
+1. **Test the switch manually** using its remote/buttons
+2. **Check logs** for error messages when switching
+3. **Verify model selection** (8x1 vs 16x1) matches your switch
+4. **Network latency** - Try increasing `polling_interval`
+
+### Logs Show "Cannot send command - not connected"
+
+This means the plugin can't establish a TCP connection to the switch:
+- Verify the IP address is correct
+- Check your network/firewall settings
+- Ensure the switch is powered on
+- Try rebooting the switch
+
+## Development
+
+### Build from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/thehammer/homebridge-tesmart.git
+cd homebridge-tesmart
+
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build
+
+# Link for local development
+npm link
+
+# Watch for changes
 npm run watch
 ```
 
-This will launch an instance of Homebridge in debug mode which will restart every time you make a change to the source code. It will load the config stored in the default location under `~/.homebridge`. You may need to stop other running instances of Homebridge while using this command to prevent conflicts. You can adjust the Homebridge startup command in the [`nodemon.json`](./nodemon.json) file.
+### Protocol Documentation
 
-### Customise Plugin
+TESmart switches use a simple TCP protocol on port 5000:
 
-You can now start customising the plugin template to suit your requirements.
-
-- [`src/platform.ts`](./src/platform.ts) - this is where your device setup and discovery should go.
-- [`src/platformAccessory.ts`](./src/platformAccessory.ts) - this is where your accessory control logic should go, you can rename or create multiple instances of this file for each accessory type you need to implement as part of your platform plugin. You can refer to the [developer documentation](https://developers.homebridge.io/) to see what characteristics you need to implement for each service type.
-- [`config.schema.json`](./config.schema.json) - update the config schema to match the config you expect from the user. See the [Plugin Config Schema Documentation](https://developers.homebridge.io/#/config-schema).
-
-### Versioning Your Plugin
-
-Given a version number `MAJOR`.`MINOR`.`PATCH`, such as `1.4.3`, increment the:
-
-1. **MAJOR** version when you make breaking changes to your plugin,
-2. **MINOR** version when you add functionality in a backwards compatible manner, and
-3. **PATCH** version when you make backwards compatible bug fixes.
-
-You can use the `npm version` command to help you with this:
-
-```shell
-# major update / breaking changes
-npm version major
-
-# minor update / new features
-npm version update
-
-# patch / bugfixes
-npm version patch
+**Message Format:**
+```
+[PREFIX] [COMMAND] [SUFFIX]
+PREFIX: 0xAA 0xBB 0x03
+SUFFIX: 0xEE
 ```
 
-### Publish Package
-
-When you are ready to publish your plugin to [npm](https://www.npmjs.com/), make sure you have removed the `private` attribute from the [`package.json`](./package.json) file then run:
-
-```shell
-npm publish
+**Switch Input Command:**
+```
+0xAA 0xBB 0x03 0x01 [INPUT] 0xEE
+INPUT: 0x01-0x10 (ports 1-16)
 ```
 
-If you are publishing a scoped plugin, i.e. `@username/homebridge-xxx` you will need to add `--access=public` to command the first time you publish.
-
-#### Publishing Beta Versions
-
-You can publish *beta* versions of your plugin for other users to test before you release it to everyone.
-
-```shell
-# create a new pre-release version (eg. 2.1.0-beta.1)
-npm version prepatch --preid beta
-
-# publish to @beta
-npm publish --tag=beta
+**Query Active Input:**
+```
+0xAA 0xBB 0x03 0x10 0x00 0xEE
 ```
 
-Users can then install the  *beta* version by appending `@beta` to the install command, for example:
+See [TESmart API Documentation](https://support.tesmart.com/hc/en-us/article_attachments/27716770201369) for more details.
 
-```shell
-sudo npm install -g homebridge-example-plugin@beta
-```
+## Contributing
 
-### Best Practices
-Consider creating your plugin with the [Homebridge Verified](https://github.com/homebridge/verified) criteria in mind. This will help you to create a plugin that is easy to use and works well with Homebridge.
-You can then submit your plugin to the Homebridge Verified list for review.
-The most up-to-date criteria can be found [here](https://github.com/homebridge/verified#requirements).
-For reference, the current criteria are:
+Contributions are welcome! Please:
 
-- The plugin must successfully install.
-- The plugin must implement the [Homebridge Plugin Settings GUI](https://github.com/oznu/homebridge-config-ui-x/wiki/Developers:-Plugin-Settings-GUI).
-- The plugin must not start unless it is configured.
-- The plugin must not execute post-install scripts that modify the users' system in any way.
-- The plugin must not contain any analytics or calls that enable you to track the user.
-- The plugin must not throw unhandled exceptions, the plugin must catch and log its own errors.
-- The plugin must be published to npm and the source code available on GitHub.
-  - A GitHub release - with patch notes - should be created for every new version of your plugin.
-- The plugin must run on all [supported LTS versions of Node.js](https://github.com/homebridge/homebridge/wiki/How-To-Update-Node.js), at the time of writing this is Node.js v16 and v18.
-- The plugin must not require the user to run Homebridge in a TTY or with non-standard startup parameters, even for initial configuration.
-- If the plugin needs to write files to disk (cache, keys, etc.), it must store them inside the Homebridge storage directory.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### Useful Links
-Note these links are here for help but are not supported/verified by the Homebridge team
-- [Custom Characteristics](https://github.com/homebridge/homebridge-plugin-template/issues/20)
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/thehammer/homebridge-tesmart/issues)
+- **Homebridge Discord**: [#plugin-development](https://discord.gg/homebridge)
+
+## License
+
+Apache-2.0 - see [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Thanks to the [Homebridge](https://homebridge.io) team
+- TESmart for their HDMI/KVM switches and protocol documentation
+
+---
+
+**Made with ❤️ for the Homebridge community**
