@@ -2,29 +2,33 @@
 import { CharacteristicValue, Service } from 'homebridge';
 import { Socket } from 'net';
 import { TESmartSwitchPlatform } from './platform.js';
+import { ConnectionState, TESmartCommand } from './types.js';
 
+/**
+ * TESmart Switch API
+ * Handles TCP communication with TESmart HDMI/KVM switches
+ */
 export class SwitchAPI {
-  private platform;
-  private service;
-  private client;
-  private isConnected = false;
-  private prefix = '\xAA\xBB\x03';
-  private suffix = '\xEE';
-  private switch = '\x01';
-  private inputs = [
+  private readonly platform: TESmartSwitchPlatform;
+  private readonly service: Service;
+  private readonly client: Socket;
+  private connectionState: ConnectionState = ConnectionState.DISCONNECTED;
+
+  // Protocol constants
+  private readonly PROTOCOL_PREFIX = '\xAA\xBB\x03';
+  private readonly PROTOCOL_SUFFIX = '\xEE';
+  private readonly RESPONSE_PREFIX = '\xAA\xBB\x03\x11';
+  private readonly PORT = 5000;
+
+  // Input port mappings (0x01-0x10 for ports 1-16)
+  private readonly INPUT_CODES = [
     '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08',
     '\x09', '\x0A', '\x0B', '\x0C', '\x0D', '\x0E', '\x0F', '\x10',
   ];
 
-  private led_timeout_10s = '\x03\x0A';
-  private led_timeout_30s = '\x03\x1E';
-  private led_timeout_never = '\x03\x00';
-  private mute_buzzer = '\x02\x00';
-  private unmute_buzzer = '\x02\x01';
-  private request_active_input = '\x10\x00';
-  private response = this.prefix + '\x11';
+  // State tracking
   private responseInbound = false;
-  private active_input = 0;
+  private activeInput = 0;
 
   constructor(private readonly ip_address: string, platform: TESmartSwitchPlatform, service: Service) {
     this.platform = platform;
@@ -34,7 +38,7 @@ export class SwitchAPI {
     // Set up socket event handlers
     this.client.on('connect', () => {
       this.platform.log.info(`Connected to TESmart switch at ${ip_address}`);
-      this.isConnected = true;
+      this.connectionState = ConnectionState.CONNECTED;
       this.requestActiveInput();
     });
 
@@ -48,74 +52,125 @@ export class SwitchAPI {
 
     this.client.on('error', (error) => {
       this.platform.log.error(`Socket error for switch at ${ip_address}:`, error.message);
-      this.isConnected = false;
+      this.connectionState = ConnectionState.ERROR;
     });
 
     this.client.on('close', () => {
       this.platform.log.warn(`Connection closed for switch at ${ip_address}`);
-      this.isConnected = false;
+      this.connectionState = ConnectionState.DISCONNECTED;
     });
 
     this.client.on('timeout', () => {
       this.platform.log.error(`Connection timeout for switch at ${ip_address}`);
-      this.isConnected = false;
+      this.connectionState = ConnectionState.ERROR;
     });
 
     // Attempt connection
     try {
-      this.client.connect(5000, ip_address);
+      this.connectionState = ConnectionState.CONNECTING;
+      this.client.connect(this.PORT, ip_address);
     } catch (error) {
       this.platform.log.error(`Failed to connect to switch at ${ip_address}:`, error);
-      this.isConnected = false;
+      this.connectionState = ConnectionState.ERROR;
     }
   }
 
-  activeInput() {
-    return this.active_input;
+  /**
+   * Get the currently active input number (1-16)
+   */
+  public getActiveInput(): number {
+    return this.activeInput;
   }
 
-  requestActiveInput() {
-    this.send(this.request_active_input);
+  /**
+   * Get the current connection state
+   */
+  public getConnectionState(): ConnectionState {
+    return this.connectionState;
   }
 
-  switchTo(input: number) {
-    this.send(this.switch + this.inputs[input - 1]);
+  /**
+   * Check if connected to the switch
+   */
+  public isConnected(): boolean {
+    return this.connectionState === ConnectionState.CONNECTED;
   }
 
-  setLEDTimeout10s() {
-    this.send(this.led_timeout_10s);
+  /**
+   * Request the currently active input from the switch
+   */
+  public requestActiveInput(): void {
+    this.send(TESmartCommand.REQUEST_ACTIVE_INPUT);
   }
 
-  setLEDTimeout30s() {
-    this.send(this.led_timeout_30s);
+  /**
+   * Switch to a specific input (1-16)
+   */
+  public switchTo(input: number): boolean {
+    if (input < 1 || input > 16) {
+      this.platform.log.error(`Invalid input number: ${input}. Must be between 1 and 16.`);
+      return false;
+    }
+    return this.send(TESmartCommand.SWITCH_INPUT + this.INPUT_CODES[input - 1]);
   }
 
-  setLEDTimeoutNever() {
-    this.send(this.led_timeout_never);
+  /**
+   * Set LED timeout to 10 seconds
+   */
+  public setLEDTimeout10s(): boolean {
+    return this.send(TESmartCommand.LED_TIMEOUT_10S);
   }
 
-  muteBuzzer() {
-    this.send(this.mute_buzzer);
+  /**
+   * Set LED timeout to 30 seconds
+   */
+  public setLEDTimeout30s(): boolean {
+    return this.send(TESmartCommand.LED_TIMEOUT_30S);
   }
 
-  unmuteBuzzer() {
-    this.send(this.unmute_buzzer);
+  /**
+   * Disable LED timeout (always on)
+   */
+  public setLEDTimeoutNever(): boolean {
+    return this.send(TESmartCommand.LED_TIMEOUT_NEVER);
   }
 
-  disconnect() {
+  /**
+   * Mute the switch buzzer
+   */
+  public muteBuzzer(): boolean {
+    return this.send(TESmartCommand.MUTE_BUZZER);
+  }
+
+  /**
+   * Unmute the switch buzzer
+   */
+  public unmuteBuzzer(): boolean {
+    return this.send(TESmartCommand.UNMUTE_BUZZER);
+  }
+
+  /**
+   * Disconnect from the switch
+   */
+  public disconnect(): void {
     if (this.client) {
+      this.connectionState = ConnectionState.DISCONNECTED;
       this.client.destroy();
     }
   }
 
-  private send(command: string) {
-    if (!this.isConnected) {
+  /**
+   * Send a command to the switch
+   */
+  private send(command: string): boolean {
+    if (!this.isConnected()) {
       this.platform.log.warn('Cannot send command - not connected to switch');
       return false;
     }
 
     try {
-      this.client.write(Buffer.from(this.prefix + command + this.suffix, 'binary'));
+      const buffer = Buffer.from(this.PROTOCOL_PREFIX + command + this.PROTOCOL_SUFFIX, 'binary');
+      this.client.write(buffer);
       return true;
     } catch (error) {
       this.platform.log.error('Error sending command to switch:', error);
@@ -123,16 +178,31 @@ export class SwitchAPI {
     }
   }
 
-  private receive(data: Buffer) {
-    if (data.toString('binary') === this.response) {
-      this.responseInbound = true;
-    } else {
-      if (this.responseInbound) {
-        this.responseInbound = false;
-        this.active_input = data[0] + 1;
+  /**
+   * Process data received from the switch
+   */
+  private receive(data: Buffer): void {
+    const dataStr = data.toString('binary');
 
-        this.service.getCharacteristic(this.platform.Characteristic.ActiveIdentifier).updateValue(this.active_input as CharacteristicValue);
-      }
+    // Check if this is a response header
+    if (dataStr === this.RESPONSE_PREFIX) {
+      this.responseInbound = true;
+      return;
+    }
+
+    // Process the response data
+    if (this.responseInbound) {
+      this.responseInbound = false;
+
+      // Extract active input (0-based to 1-based)
+      this.activeInput = data[0] + 1;
+
+      // Update HomeKit characteristic
+      this.service
+        .getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
+        .updateValue(this.activeInput as CharacteristicValue);
+
+      this.platform.log.debug(`Active input updated to: ${this.activeInput}`);
     }
   }
 }

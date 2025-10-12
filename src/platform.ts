@@ -2,6 +2,7 @@ import { API, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig,
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { TESmartSwitchAccessory } from './platformAccessory.js';
+import { TESmartPlatformConfig, SwitchConfig } from './types.js';
 
 export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
@@ -77,8 +78,8 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
     this.accessories.push(accessory);
   }
 
-  discoverDevices(config: PlatformConfig) {
-    config.switches.forEach((aSwitch: PlatformConfig, index: number) => {
+  discoverDevices(config: TESmartPlatformConfig) {
+    config.switches.forEach((aSwitch: SwitchConfig, index: number) => {
       try {
         this.log.debug(JSON.stringify(aSwitch));
 
