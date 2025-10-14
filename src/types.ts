@@ -1,6 +1,7 @@
 /**
  * Type definitions for the TESmart Homebridge plugin
  */
+import { PlatformConfig } from 'homebridge';
 
 /**
  * Configuration for a single HDMI input
@@ -39,9 +40,7 @@ export interface SwitchConfig {
 /**
  * Platform configuration
  */
-export interface TESmartPlatformConfig {
-  platform: string;
-  name?: string;
+export interface TESmartPlatformConfig extends PlatformConfig {
   switches: SwitchConfig[];
 }
 

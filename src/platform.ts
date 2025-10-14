@@ -33,23 +33,24 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
     }
 
     this.api.on('didFinishLaunching', () => {
-      this.discoverDevices(config);
+      this.discoverDevices(config as TESmartPlatformConfig);
     });
   }
 
   /**
    * Validates the plugin configuration
    */
-  private validateConfig(config: PlatformConfig): boolean {
+  private validateConfig(config: PlatformConfig): config is TESmartPlatformConfig {
     // Check if switches array exists and is not empty
-    if (!config.switches || !Array.isArray(config.switches) || config.switches.length === 0) {
+    const testConfig = config as TESmartPlatformConfig;
+    if (!testConfig.switches || !Array.isArray(testConfig.switches) || testConfig.switches.length === 0) {
       this.log.error('Configuration error: No switches configured');
       return false;
     }
 
     // Validate each switch configuration
-    for (let i = 0; i < config.switches.length; i++) {
-      const switchConfig = config.switches[i];
+    for (let i = 0; i < testConfig.switches.length; i++) {
+      const switchConfig = testConfig.switches[i];
 
       if (!switchConfig.label || typeof switchConfig.label !== 'string') {
         this.log.error(`Configuration error: Switch ${i + 1} is missing a label`);
