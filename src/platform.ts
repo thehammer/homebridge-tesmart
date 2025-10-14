@@ -3,6 +3,7 @@ import { API, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig,
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { TESmartSwitchAccessory } from './platformAccessory.js';
 import { TESmartPlatformConfig, SwitchConfig } from './types.js';
+import { TESmartDiscovery } from './discovery.js';
 
 export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service;
@@ -26,14 +27,17 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
     }
 
     // Validate configuration before starting
-    if (!this.validateConfig(config)) {
+    const testConfig = config as TESmartPlatformConfig;
+
+    // If discovery is disabled, require at least one configured switch
+    if (!testConfig.enableDiscovery && !this.validateConfig(config)) {
       this.log.error('Invalid configuration. Plugin will not start.');
-      this.log.error('Please configure at least one TESmart switch in the Homebridge settings.');
+      this.log.error('Please configure at least one TESmart switch or enable network discovery.');
       return;
     }
 
     this.api.on('didFinishLaunching', () => {
-      this.discoverDevices(config as TESmartPlatformConfig);
+      this.initializeDevices(config as TESmartPlatformConfig);
     });
   }
 
@@ -44,7 +48,6 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
     // Check if switches array exists and is not empty
     const testConfig = config as TESmartPlatformConfig;
     if (!testConfig.switches || !Array.isArray(testConfig.switches) || testConfig.switches.length === 0) {
-      this.log.error('Configuration error: No switches configured');
       return false;
     }
 
@@ -71,6 +74,54 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
     }
 
     return true;
+  }
+
+  /**
+   * Initialize devices: run discovery if enabled, then configure all switches
+   */
+  private async initializeDevices(config: TESmartPlatformConfig): Promise<void> {
+    const configuredSwitches: SwitchConfig[] = config.switches || [];
+    let allSwitches: SwitchConfig[] = [...configuredSwitches];
+
+    // Run network discovery if enabled
+    if (config.enableDiscovery) {
+      this.log.info('Network discovery is enabled');
+      try {
+        const discovery = new TESmartDiscovery(this.log);
+        const discovered = await discovery.discoverSwitches(config.discoverySubnet);
+
+        if (discovered.length > 0) {
+          // Get list of already configured IP addresses
+          const configuredIPs = new Set(configuredSwitches.map(s => s.ip_address));
+
+          // Add discovered switches that aren't already configured
+          const newSwitches: SwitchConfig[] = discovered
+            .filter(device => !configuredIPs.has(device.ipAddress))
+            .map(device => {
+              this.log.info(`Adding discovered switch at ${device.ipAddress}`);
+              return {
+                label: `TESmart Switch (${device.ipAddress})`,
+                ip_address: device.ipAddress,
+              };
+            });
+
+          allSwitches = [...configuredSwitches, ...newSwitches];
+        } else {
+          this.log.warn('No TESmart switches found during discovery');
+        }
+      } catch (error) {
+        this.log.error('Network discovery failed:', error);
+      }
+    }
+
+    // If still no switches, exit
+    if (allSwitches.length === 0) {
+      this.log.error('No switches configured or discovered. Plugin will not start.');
+      return;
+    }
+
+    // Configure all switches
+    this.discoverDevices({ ...config, switches: allSwitches });
   }
 
   configureAccessory(accessory: PlatformAccessory) {

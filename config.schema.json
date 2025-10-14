@@ -14,11 +14,26 @@
         "required": true,
         "description": "Name for this platform (usually just 'TESmart')"
       },
+      "enableDiscovery": {
+        "title": "Enable Network Discovery",
+        "type": "boolean",
+        "default": false,
+        "description": "Automatically discover TESmart switches on your local network. Discovered switches will be added automatically."
+      },
+      "discoverySubnet": {
+        "title": "Discovery Subnet (Optional)",
+        "type": "string",
+        "placeholder": "192.168.1",
+        "description": "Limit discovery to a specific subnet (e.g., '192.168.1'). Leave empty to scan all local networks.",
+        "condition": {
+          "functionBody": "return model.enableDiscovery === true;"
+        }
+      },
       "switches": {
         "title": "Switches",
         "type": "array",
-        "required": true,
-        "description": "Add one or more TESmart HDMI/KVM switches. Each switch will appear as a Television accessory in HomeKit.",
+        "required": false,
+        "description": "Manually configure TESmart HDMI/KVM switches. Each switch will appear as a Television accessory in HomeKit. Leave empty if using network discovery.",
         "items": {
           "title": "Switch",
           "type": "object",
@@ -204,9 +219,23 @@
   "layout": [
     {
       "type": "help",
-      "helpvalue": "<h5>Getting Started</h5><p>Add your TESmart switches below. Each switch needs a static IP address and will appear as a Television accessory in HomeKit.</p>"
+      "helpvalue": "<h5>Getting Started</h5><p>Configure your TESmart switches manually below, or enable network discovery to automatically find switches on your network.</p>"
     },
     "name",
+    {
+      "type": "section",
+      "title": "Network Discovery",
+      "expandable": true,
+      "expanded": true,
+      "items": [
+        {
+          "type": "help",
+          "helpvalue": "<p><strong>Automatic Discovery:</strong> Enable this to automatically find TESmart switches on your local network. This can take 1-2 minutes on first startup.</p><p><em>Note:</em> Manually configured switches below will always be included, regardless of discovery settings.</p>"
+        },
+        "enableDiscovery",
+        "discoverySubnet"
+      ]
+    },
     {
       "key": "switches",
       "type": "array",

@@ -42,6 +42,8 @@ export interface SwitchConfig {
  */
 export interface TESmartPlatformConfig extends PlatformConfig {
   switches: SwitchConfig[];
+  enableDiscovery?: boolean;
+  discoverySubnet?: string;
 }
 
 /**
