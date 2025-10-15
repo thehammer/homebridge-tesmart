@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-10-15
+
+### Fixed
+- Switch accessories now display with proper descriptive names in HomeKit
+  - Format: "{Switch Label} Mute Buzzer", "{Switch Label} LED 10s", "{Switch Label} LED 30s"
+  - Previously all three switches showed only the switch label, making them indistinguishable
+
 ## [1.4.0] - 2025-10-15
 
 ### Added

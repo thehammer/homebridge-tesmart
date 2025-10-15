@@ -107,9 +107,12 @@ export class TESmartSwitchAccessory {
       .updateValue(this.platform.api.hap.encode(1, displayOrder).toString('base64'));
 
     // Add buzzer mute switch
-    this.buzzerMuteSwitch = this.accessory.getService('Mute Buzzer') ||
-                            this.accessory.addService(Service.Switch, 'Mute Buzzer', 'buzzer-mute');
-    this.buzzerMuteSwitch.setCharacteristic(Characteristic.Name, 'Mute Buzzer');
+    const buzzerName = `${config.label} Mute Buzzer`;
+    this.buzzerMuteSwitch = this.accessory.getServiceById(Service.Switch, 'buzzer-mute') ||
+                            this.accessory.addService(Service.Switch, buzzerName, 'buzzer-mute');
+    this.buzzerMuteSwitch
+      .setCharacteristic(Characteristic.Name, buzzerName)
+      .setCharacteristic(Characteristic.ConfiguredName, buzzerName);
     this.buzzerMuteSwitch.getCharacteristic(Characteristic.On)
       .onGet(this.handleBuzzerMuteGet.bind(this))
       .onSet(this.handleBuzzerMuteSet.bind(this));
@@ -117,16 +120,22 @@ export class TESmartSwitchAccessory {
     this.buzzerMuteSwitch.updateCharacteristic(Characteristic.On, config.mute_buzzer || false);
 
     // Add LED timeout switches (mutually exclusive group)
-    this.ledTimeout10sSwitch = this.accessory.getService('LED Timeout 10s') ||
-                                this.accessory.addService(Service.Switch, 'LED Timeout 10s', 'led-timeout-10s');
-    this.ledTimeout10sSwitch.setCharacteristic(Characteristic.Name, 'LED Timeout 10s');
+    const led10sName = `${config.label} LED 10s`;
+    this.ledTimeout10sSwitch = this.accessory.getServiceById(Service.Switch, 'led-timeout-10s') ||
+                                this.accessory.addService(Service.Switch, led10sName, 'led-timeout-10s');
+    this.ledTimeout10sSwitch
+      .setCharacteristic(Characteristic.Name, led10sName)
+      .setCharacteristic(Characteristic.ConfiguredName, led10sName);
     this.ledTimeout10sSwitch.getCharacteristic(Characteristic.On)
       .onGet(this.handleLEDTimeout10sGet.bind(this))
       .onSet(this.handleLEDTimeout10sSet.bind(this));
 
-    this.ledTimeout30sSwitch = this.accessory.getService('LED Timeout 30s') ||
-                                this.accessory.addService(Service.Switch, 'LED Timeout 30s', 'led-timeout-30s');
-    this.ledTimeout30sSwitch.setCharacteristic(Characteristic.Name, 'LED Timeout 30s');
+    const led30sName = `${config.label} LED 30s`;
+    this.ledTimeout30sSwitch = this.accessory.getServiceById(Service.Switch, 'led-timeout-30s') ||
+                                this.accessory.addService(Service.Switch, led30sName, 'led-timeout-30s');
+    this.ledTimeout30sSwitch
+      .setCharacteristic(Characteristic.Name, led30sName)
+      .setCharacteristic(Characteristic.ConfiguredName, led30sName);
     this.ledTimeout30sSwitch.getCharacteristic(Characteristic.On)
       .onGet(this.handleLEDTimeout30sGet.bind(this))
       .onSet(this.handleLEDTimeout30sSet.bind(this));
