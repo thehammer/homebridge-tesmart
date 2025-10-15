@@ -14,7 +14,7 @@ Control your TESmart HDMI/KVM switches through Apple HomeKit using Homebridge.
 - ⚙️ Easy configuration through Homebridge UI
 - 🏷️ Custom labels for each input
 - 👁️ Hide/show specific inputs in HomeKit
-- 🔧 Configurable polling interval
+- 🔧 Configurable polling interval or disable polling for one-way control
 - 🔕 Mute buzzer beeps on input switching
 - 💡 Configurable LED timeout (10s/30s/always on)
 - 📡 Supports multiple switches
@@ -181,7 +181,8 @@ Add this to your Homebridge `config.json`:
 | `label` | string | - | **Required.** Friendly name for the switch |
 | `ip_address` | string | - | **Required.** Static IP address of the switch |
 | `model` | string | `"16x1"` | Switch model: `"8x1"` or `"16x1"` |
-| `polling_interval` | number | `1000` | Polling interval in milliseconds (500-10000) |
+| `disable_polling` | boolean | `false` | Disable automatic state polling. When enabled, HomeKit can still control the switch, but external changes (physical buttons, IR remote) won't be detected. Provides one-way control only. |
+| `polling_interval` | number | `1000` | Polling interval in milliseconds (500-10000). Ignored if `disable_polling` is `true`. |
 | `mute_buzzer` | boolean | `false` | Mute the buzzer beep when switching inputs |
 | `led_timeout` | string | `"never"` | LED timeout: `"never"` (always on), `"10s"`, or `"30s"` |
 | `input1` - `input16` | object | - | Input configuration (see below) |

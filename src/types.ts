@@ -19,6 +19,7 @@ export interface SwitchConfig {
   ip_address: string;
   model?: '8x1' | '16x1';
   polling_interval?: number;
+  disable_polling?: boolean;
   mute_buzzer?: boolean;
   led_timeout?: 'never' | '10s' | '30s';
   input1?: InputConfig;

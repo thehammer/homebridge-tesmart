@@ -103,11 +103,16 @@ export class TESmartSwitchAccessory {
     this.switchService.getCharacteristic(Characteristic.DisplayOrder)
       .updateValue(this.platform.api.hap.encode(1, displayOrder).toString('base64'));
 
-    // Poll for active input changes
-    const pollingInterval = config.polling_interval || 1000;
-    this.pollingInterval = setInterval(() => {
-      this.switchService.getCharacteristic(Characteristic.ActiveIdentifier).updateValue(this.switchAPI.getActiveInput());
-    }, pollingInterval);
+    // Poll for active input changes (unless disabled)
+    if (!config.disable_polling) {
+      const pollingInterval = config.polling_interval || 1000;
+      this.pollingInterval = setInterval(() => {
+        this.switchService.getCharacteristic(Characteristic.ActiveIdentifier).updateValue(this.switchAPI.getActiveInput());
+      }, pollingInterval);
+      this.platform.log.debug(`Polling enabled with interval: ${pollingInterval}ms`);
+    } else {
+      this.platform.log.info(`Polling disabled for switch "${config.label}" - one-way control only`);
+    }
   }
 
   /**

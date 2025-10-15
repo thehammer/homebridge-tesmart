@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-10-15
+
+### Added
+- **Disable polling option** - New `disable_polling` boolean config option
+  - When enabled, stops automatic polling of switch state
+  - Provides one-way control: HomeKit can control the switch, but external changes (physical buttons, IR remote) won't be detected
+  - Useful for reducing network traffic or when external control isn't needed
+  - Polling interval field is hidden in UI when polling is disabled
+
 ## [1.2.0] - 2025-10-15
 
 ### Added

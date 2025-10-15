@@ -67,7 +67,16 @@
               "default": 1000,
               "minimum": 500,
               "maximum": 10000,
-              "description": "How often to check the active input (in milliseconds). Default is 1000ms (1 second)."
+              "description": "How often to check the active input (in milliseconds). Default is 1000ms (1 second).",
+              "condition": {
+                "functionBody": "return !model.switches[arrayIndices].disable_polling;"
+              }
+            },
+            "disable_polling": {
+              "title": "Disable Polling",
+              "type": "boolean",
+              "default": false,
+              "description": "Disable automatic polling of the switch state. When enabled, HomeKit can still control the switch, but changes made outside of HomeKit (physical buttons, IR remote) will not be detected. This provides one-way control only."
             },
             "mute_buzzer": {
               "title": "Mute Buzzer",
@@ -261,6 +270,7 @@
         "switches[].label",
         "switches[].ip_address",
         "switches[].model",
+        "switches[].disable_polling",
         "switches[].polling_interval",
         "switches[].mute_buzzer",
         "switches[].led_timeout",
