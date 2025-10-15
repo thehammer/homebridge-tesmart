@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-15
+
+### Added
+- **Automatic network discovery** - Automatically find TESmart switches on your local network
+  - Enable via `enableDiscovery` configuration option in Homebridge UI or config.json
+  - Optional `discoverySubnet` parameter to limit scanning to specific subnet
+  - Scans all 254 addresses in each subnet (or specified subnet only)
+  - Discovery runs on plugin startup and takes 1-2 minutes
+  - Discovered switches are automatically added alongside manually configured switches
+  - Protocol-based identification ensures only TESmart switches are detected
+
+### Changed
+- Configuration now supports discovery-only mode (no manual switches required if discovery is enabled)
+- Updated README with comprehensive network discovery documentation
+- Enhanced configuration validation to allow startup with only discovery enabled
+
 ## [1.0.0] - 2025-10-12
 
 ### Added

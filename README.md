@@ -9,6 +9,7 @@ Control your TESmart HDMI/KVM switches through Apple HomeKit using Homebridge.
 
 - 🎮 Control TESmart HDMI/KVM switches from the Home app
 - 📱 Switch between up to 16 HDMI inputs
+- 🔍 **Automatic network discovery** - Find switches on your network automatically
 - 🔄 Automatic reconnection with exponential backoff
 - ⚙️ Easy configuration through Homebridge UI
 - 🏷️ Custom labels for each input
@@ -54,19 +55,49 @@ npm install -g homebridge-tesmart
 
 1. Navigate to the **Plugins** page in Homebridge UI
 2. Find **Homebridge TESmart** and click **Settings**
-3. Add your switch(es):
+
+#### Option A: Automatic Discovery (Easiest)
+
+1. Enable **"Enable Network Discovery"** checkbox
+2. (Optional) Set **"Discovery Subnet"** to limit scanning to a specific subnet (e.g., "192.168.1")
+3. Save and restart Homebridge
+4. The plugin will automatically find and add TESmart switches on your network
+5. Check the logs to see discovered switches (discovery takes 1-2 minutes on first startup)
+
+#### Option B: Manual Configuration
+
+1. Add your switch(es) manually:
    - **Switch Label**: Friendly name (e.g., "Living Room HDMI")
    - **IP Address**: Static IP of your TESmart switch
    - **Model**: Select your switch model (8x1 or 16x1)
    - **Polling Interval**: How often to check active input (default: 1000ms)
-4. Configure each input:
+2. Configure each input:
    - **Label**: Name for the input (e.g., "Apple TV", "PlayStation 5")
    - **Show in HomeKit**: Toggle to hide/show this input
-5. Save and restart Homebridge
+3. Save and restart Homebridge
 
-### Manual Configuration
+**Note:** You can use both methods together. Manually configured switches will always be included, and discovery will add any additional switches found on the network.
+
+### Manual Configuration (config.json)
 
 Add this to your Homebridge `config.json`:
+
+#### With Network Discovery:
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "TESmart",
+      "name": "TESmart",
+      "enableDiscovery": true,
+      "discoverySubnet": "192.168.1"
+    }
+  ]
+}
+```
+
+#### With Manual Switch Configuration:
 
 ```json
 {
@@ -103,13 +134,39 @@ Add this to your Homebridge `config.json`:
 }
 ```
 
+#### Combined (Discovery + Manual):
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "TESmart",
+      "name": "TESmart",
+      "enableDiscovery": true,
+      "discoverySubnet": "192.168.1",
+      "switches": [
+        {
+          "label": "Living Room HDMI Switch",
+          "ip_address": "192.168.1.100",
+          "model": "16x1"
+        }
+      ]
+    }
+  ]
+}
+```
+
 ### Configuration Options
+
+#### Platform Configuration
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `platform` | string | `"TESmart"` | **Required.** Must be "TESmart" |
 | `name` | string | `"TESmart"` | Platform name |
-| `switches` | array | `[]` | **Required.** Array of switch configurations |
+| `enableDiscovery` | boolean | `false` | Enable automatic network discovery of TESmart switches |
+| `discoverySubnet` | string | - | Optional. Limit discovery to a specific subnet (e.g., "192.168.1"). Leave empty to scan all local networks. |
+| `switches` | array | `[]` | Array of manually configured switches. At least one switch or `enableDiscovery: true` is required. |
 
 #### Switch Configuration
 
@@ -130,9 +187,22 @@ Add this to your Homebridge `config.json`:
 
 ## Setup Guide
 
-### 1. Assign Static IP to Your TESmart Switch
+### Quick Start with Network Discovery
 
-**Important:** Your TESmart switch must have a static IP address.
+**Easiest method - no IP address needed:**
+
+1. Install the plugin through Homebridge UI
+2. Open plugin settings
+3. Enable **"Enable Network Discovery"**
+4. Save and restart Homebridge
+5. Check logs - the plugin will automatically find your switches (takes 1-2 minutes)
+6. Switches will appear as **Television** accessories in HomeKit
+
+### Manual Setup
+
+**For static IP configuration or advanced setups:**
+
+#### 1. Assign Static IP to Your TESmart Switch
 
 **Option A: Router DHCP Reservation (Recommended)**
 1. Find your switch's MAC address
@@ -144,7 +214,7 @@ Add this to your Homebridge `config.json`:
 - Use the TESmart configuration software to assign a static IP
 - Refer to your switch's manual for detailed instructions
 
-### 2. Test Connectivity
+#### 2. Test Connectivity
 
 ```bash
 # Test if the switch is reachable
@@ -154,11 +224,11 @@ ping 192.168.1.100
 nc -zv 192.168.1.100 5000
 ```
 
-### 3. Configure in Homebridge
+#### 3. Configure in Homebridge
 
-Follow the configuration steps above using either the UI or manual config.
+Follow the manual configuration steps above using either the UI or config.json.
 
-### 4. Restart Homebridge
+#### 4. Restart Homebridge
 
 The switch will appear as a **Television** accessory in HomeKit.
 
@@ -188,10 +258,18 @@ Use HomeKit automations to automatically switch inputs based on:
 ### Switch Not Appearing in HomeKit
 
 1. **Check Homebridge logs** for error messages
-2. **Verify IP address** - Can you ping the switch?
-3. **Check port 5000** - Ensure it's not blocked by a firewall
-4. **Static IP** - Make sure the switch has a static IP
+2. **Try network discovery** - Enable discovery to automatically find switches
+3. **Verify IP address** (manual config) - Can you ping the switch?
+4. **Check port 5000** - Ensure it's not blocked by a firewall
 5. **Restart Homebridge** after configuration changes
+
+### Network Discovery Not Finding Switches
+
+1. **Check logs** - Discovery takes 1-2 minutes, watch for progress
+2. **Verify network** - Ensure Homebridge and switches are on the same network
+3. **Try specific subnet** - Set `discoverySubnet` to your network (e.g., "192.168.1")
+4. **Check firewall** - Ensure port 5000 is not blocked
+5. **Manual fallback** - Configure switches manually if discovery fails
 
 ### Connection Issues
 

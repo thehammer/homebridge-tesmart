@@ -1,6 +1,9 @@
 # Ignore source code
 src
 
+# Claude Code
+.claude
+
 # ------------- Defaults ------------- #
 
 # gitHub actions
