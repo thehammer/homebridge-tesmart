@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-10-15
+
+### Added
+- **HomeKit controls for buzzer and LED timeout** - No more restarting Homebridge to change these settings!
+  - New "Mute Buzzer" switch accessory - Toggle buzzer mute on/off directly from HomeKit
+  - New "LED Timeout 10s" switch accessory - Set 10 second LED timeout
+  - New "LED Timeout 30s" switch accessory - Set 30 second LED timeout
+  - LED timeout switches are mutually exclusive (turning one on turns the other off)
+  - When both LED timeout switches are off, LEDs stay on always (never timeout)
+  - All controls work with Siri and HomeKit automations
+  - State is tracked and survives Homebridge restarts
+
+### Changed
+- Buzzer and LED timeout config options (`mute_buzzer`, `led_timeout`) now only set initial state
+  - After initial setup, use the HomeKit switches to control these settings
+  - Config options are still useful for setting defaults on first setup or after reset
+
 ## [1.3.0] - 2025-10-15
 
 ### Added

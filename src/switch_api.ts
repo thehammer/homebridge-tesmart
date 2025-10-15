@@ -29,6 +29,8 @@ export class SwitchAPI {
   // State tracking
   private responseInbound = false;
   private activeInput = 0;
+  private buzzerMuted: boolean;
+  private currentLEDTimeout: 'never' | '10s' | '30s';
 
   // Reconnection management
   private reconnectTimer?: NodeJS.Timeout;
@@ -47,6 +49,10 @@ export class SwitchAPI {
     this.platform = platform;
     this.service = service;
     this.client = new Socket();
+
+    // Initialize state from config
+    this.buzzerMuted = shouldMuteBuzzer;
+    this.currentLEDTimeout = ledTimeout;
 
     // Set up socket event handlers
     this.client.on('connect', () => {
@@ -136,35 +142,69 @@ export class SwitchAPI {
    * Set LED timeout to 10 seconds
    */
   public setLEDTimeout10s(): boolean {
-    return this.send(TESmartCommand.LED_TIMEOUT_10S);
+    const result = this.send(TESmartCommand.LED_TIMEOUT_10S);
+    if (result) {
+      this.currentLEDTimeout = '10s';
+    }
+    return result;
   }
 
   /**
    * Set LED timeout to 30 seconds
    */
   public setLEDTimeout30s(): boolean {
-    return this.send(TESmartCommand.LED_TIMEOUT_30S);
+    const result = this.send(TESmartCommand.LED_TIMEOUT_30S);
+    if (result) {
+      this.currentLEDTimeout = '30s';
+    }
+    return result;
   }
 
   /**
    * Disable LED timeout (always on)
    */
   public setLEDTimeoutNever(): boolean {
-    return this.send(TESmartCommand.LED_TIMEOUT_NEVER);
+    const result = this.send(TESmartCommand.LED_TIMEOUT_NEVER);
+    if (result) {
+      this.currentLEDTimeout = 'never';
+    }
+    return result;
+  }
+
+  /**
+   * Get current LED timeout setting
+   */
+  public getLEDTimeout(): 'never' | '10s' | '30s' {
+    return this.currentLEDTimeout;
   }
 
   /**
    * Mute the switch buzzer
    */
   public muteBuzzer(): boolean {
-    return this.send(TESmartCommand.MUTE_BUZZER);
+    const result = this.send(TESmartCommand.MUTE_BUZZER);
+    if (result) {
+      this.buzzerMuted = true;
+    }
+    return result;
   }
 
   /**
    * Unmute the switch buzzer
    */
   public unmuteBuzzer(): boolean {
-    return this.send(TESmartCommand.UNMUTE_BUZZER);
+    const result = this.send(TESmartCommand.UNMUTE_BUZZER);
+    if (result) {
+      this.buzzerMuted = false;
+    }
+    return result;
+  }
+
+  /**
+   * Check if buzzer is currently muted
+   */
+  public isBuzzerMuted(): boolean {
+    return this.buzzerMuted;
   }
 
   /**

@@ -15,8 +15,8 @@ Control your TESmart HDMI/KVM switches through Apple HomeKit using Homebridge.
 - 🏷️ Custom labels for each input
 - 👁️ Hide/show specific inputs in HomeKit
 - 🔧 Configurable polling interval or disable polling for one-way control
-- 🔕 Mute buzzer beeps on input switching
-- 💡 Configurable LED timeout (10s/30s/always on)
+- 🔕 **Control buzzer directly from HomeKit** - Toggle buzzer mute on/off without restarting
+- 💡 **Control LED timeout from HomeKit** - Switch between 10s, 30s, or always on
 - 📡 Supports multiple switches
 
 ## Compatibility
@@ -250,17 +250,36 @@ The switch will appear as a **Television** accessory in HomeKit.
 3. Tap to view inputs
 4. Select an input to switch to it
 
+**Additional Controls:**
+
+Each switch also includes three additional switch accessories:
+- **Mute Buzzer** - Toggle to mute/unmute the beep sound when changing inputs
+- **LED Timeout 10s** - Turn on to set LED timeout to 10 seconds (turns off other timeout options)
+- **LED Timeout 30s** - Turn on to set LED timeout to 30 seconds (turns off other timeout options)
+- When both LED timeout switches are off, LEDs stay on always
+
 ### With Siri
 
+**Input Switching:**
 - "Switch Living Room HDMI to Apple TV"
 - "Change Living Room HDMI to PlayStation 5"
 
+**Buzzer Control:**
+- "Turn on Mute Buzzer" (mutes beep sounds)
+- "Turn off Mute Buzzer" (enables beep sounds)
+
+**LED Timeout Control:**
+- "Turn on LED Timeout 10s" (sets 10 second timeout)
+- "Turn on LED Timeout 30s" (sets 30 second timeout)
+- "Turn off LED Timeout 10s and LED Timeout 30s" (LEDs always on)
+
 ### In Automation
 
-Use HomeKit automations to automatically switch inputs based on:
-- Time of day
-- When you arrive/leave home
-- When other accessories are triggered
+Use HomeKit automations to automatically:
+- Switch inputs based on time of day or presence
+- Mute buzzer at night
+- Set LED timeout based on room lighting
+- Trigger input changes when other accessories activate
 
 ## Troubleshooting
 
