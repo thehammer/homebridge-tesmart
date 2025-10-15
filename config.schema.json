@@ -69,6 +69,23 @@
               "maximum": 10000,
               "description": "How often to check the active input (in milliseconds). Default is 1000ms (1 second)."
             },
+            "mute_buzzer": {
+              "title": "Mute Buzzer",
+              "type": "boolean",
+              "default": false,
+              "description": "Mute the switch buzzer sound when changing inputs. The buzzer will beep by default."
+            },
+            "led_timeout": {
+              "title": "LED Timeout",
+              "type": "string",
+              "default": "never",
+              "oneOf": [
+                { "title": "Always On", "enum": ["never"] },
+                { "title": "10 Seconds", "enum": ["10s"] },
+                { "title": "30 Seconds", "enum": ["30s"] }
+              ],
+              "description": "How long the front panel LED stays on after switching inputs. 'Always On' keeps LEDs lit continuously."
+            },
             "input1": {
               "title": "Input 1",
               "type": "object",
@@ -245,6 +262,8 @@
         "switches[].ip_address",
         "switches[].model",
         "switches[].polling_interval",
+        "switches[].mute_buzzer",
+        "switches[].led_timeout",
         {
           "key": "switches[]",
           "type": "section",

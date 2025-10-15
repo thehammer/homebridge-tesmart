@@ -29,7 +29,13 @@ export class TESmartSwitchAccessory {
       this.switchService = this.accessory.getService(Service.Television) ||
                            this.accessory.addService(Service.Television);
 
-      this.switchAPI = new SwitchAPI(config.ip_address, this.platform, this.switchService);
+      this.switchAPI = new SwitchAPI(
+        config.ip_address,
+        this.platform,
+        this.switchService,
+        config.mute_buzzer || false,
+        config.led_timeout || 'never',
+      );
     } catch (error) {
       this.platform.log.error(`Failed to initialize accessory "${config.label}":`, error);
       throw error;
@@ -41,7 +47,8 @@ export class TESmartSwitchAccessory {
 
     this.switchService.getCharacteristic(Characteristic.Active)
       .onGet(this.handleActiveGet.bind(this))
-      .onSet(this.handleActiveSet.bind(this));
+      .onSet(this.handleActiveSet.bind(this))
+      .setProps({ perms: [this.platform.api.hap.Perms.PAIRED_READ, this.platform.api.hap.Perms.NOTIFY] });
 
     this.switchService.getCharacteristic(Characteristic.ActiveIdentifier)
       .onGet(this.handleActiveIdentifierGet.bind(this))

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-15
+
+### Added
+- **Buzzer mute option** - Configure switches to mute the beep sound when changing inputs
+  - New `mute_buzzer` boolean config option (default: false)
+  - Setting applied automatically on connection
+- **LED timeout configuration** - Control how long front panel LEDs stay on
+  - New `led_timeout` config option with values: "never" (always on), "10s", or "30s"
+  - Default is "never" (always on)
+  - Setting applied automatically on connection
+
+### Changed
+- Removed on/off toggle from HomeKit interface - switches now always appear as "on"
+  - TESmart switches don't have power control, so the toggle was non-functional
+  - This provides a cleaner, more accurate HomeKit interface
+
 ## [1.1.1] - 2025-10-15
 
 ### Fixed

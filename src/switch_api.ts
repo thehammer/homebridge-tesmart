@@ -37,7 +37,13 @@ export class SwitchAPI {
   private readonly INITIAL_RECONNECT_DELAY = 1000; // 1 second
   private readonly MAX_RECONNECT_DELAY = 60000; // 1 minute
 
-  constructor(private readonly ip_address: string, platform: TESmartSwitchPlatform, service: Service) {
+  constructor(
+    private readonly ip_address: string,
+    platform: TESmartSwitchPlatform,
+    service: Service,
+    private readonly shouldMuteBuzzer: boolean = false,
+    private readonly ledTimeout: 'never' | '10s' | '30s' = 'never',
+  ) {
     this.platform = platform;
     this.service = service;
     this.client = new Socket();
@@ -48,6 +54,7 @@ export class SwitchAPI {
       this.connectionState = ConnectionState.CONNECTED;
       this.reconnectAttempts = 0; // Reset reconnect counter on successful connection
       this.requestActiveInput();
+      this.applyInitialSettings();
     });
 
     this.client.on('data', (data) => {
@@ -173,6 +180,29 @@ export class SwitchAPI {
     if (this.client) {
       this.connectionState = ConnectionState.DISCONNECTED;
       this.client.destroy();
+    }
+  }
+
+  /**
+   * Apply initial settings to the switch on connection
+   */
+  private applyInitialSettings(): void {
+    // Apply buzzer setting
+    if (this.shouldMuteBuzzer) {
+      this.platform.log.debug('Muting switch buzzer');
+      this.send(TESmartCommand.MUTE_BUZZER);
+    }
+
+    // Apply LED timeout setting
+    if (this.ledTimeout === '10s') {
+      this.platform.log.debug('Setting LED timeout to 10 seconds');
+      this.setLEDTimeout10s();
+    } else if (this.ledTimeout === '30s') {
+      this.platform.log.debug('Setting LED timeout to 30 seconds');
+      this.setLEDTimeout30s();
+    } else {
+      this.platform.log.debug('Setting LED timeout to always on');
+      this.setLEDTimeoutNever();
     }
   }
 

@@ -15,6 +15,8 @@ Control your TESmart HDMI/KVM switches through Apple HomeKit using Homebridge.
 - 🏷️ Custom labels for each input
 - 👁️ Hide/show specific inputs in HomeKit
 - 🔧 Configurable polling interval
+- 🔕 Mute buzzer beeps on input switching
+- 💡 Configurable LED timeout (10s/30s/always on)
 - 📡 Supports multiple switches
 
 ## Compatibility
@@ -71,6 +73,8 @@ npm install -g homebridge-tesmart
    - **IP Address**: Static IP of your TESmart switch
    - **Model**: Select your switch model (8x1 or 16x1)
    - **Polling Interval**: How often to check active input (default: 1000ms)
+   - **Mute Buzzer**: Disable beep sounds when switching inputs
+   - **LED Timeout**: Set front panel LED timeout (Always On, 10s, or 30s)
 2. Configure each input:
    - **Label**: Name for the input (e.g., "Apple TV", "PlayStation 5")
    - **Show in HomeKit**: Toggle to hide/show this input
@@ -111,6 +115,8 @@ Add this to your Homebridge `config.json`:
           "ip_address": "192.168.1.100",
           "model": "16x1",
           "polling_interval": 1000,
+          "mute_buzzer": false,
+          "led_timeout": "never",
           "input1": {
             "label": "Apple TV",
             "enabled": true
@@ -176,6 +182,8 @@ Add this to your Homebridge `config.json`:
 | `ip_address` | string | - | **Required.** Static IP address of the switch |
 | `model` | string | `"16x1"` | Switch model: `"8x1"` or `"16x1"` |
 | `polling_interval` | number | `1000` | Polling interval in milliseconds (500-10000) |
+| `mute_buzzer` | boolean | `false` | Mute the buzzer beep when switching inputs |
+| `led_timeout` | string | `"never"` | LED timeout: `"never"` (always on), `"10s"`, or `"30s"` |
 | `input1` - `input16` | object | - | Input configuration (see below) |
 
 #### Input Configuration
