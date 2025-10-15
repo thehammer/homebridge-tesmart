@@ -6,12 +6,12 @@
   "footerDisplay": "For support, please visit the [GitHub Issues](https://github.com/thehammer/homebridge-tesmart/issues) page.",
   "schema": {
     "type": "object",
+    "required": ["name"],
     "properties": {
       "name": {
         "title": "Platform Name",
         "type": "string",
         "default": "TESmart",
-        "required": true,
         "description": "Name for this platform (usually just 'TESmart')"
       },
       "enableDiscovery": {
@@ -32,16 +32,15 @@
       "switches": {
         "title": "Switches",
         "type": "array",
-        "required": false,
         "description": "Manually configure TESmart HDMI/KVM switches. Each switch will appear as a Television accessory in HomeKit. Leave empty if using network discovery.",
         "items": {
           "title": "Switch",
           "type": "object",
+          "required": ["label", "ip_address"],
           "properties": {
             "label": {
               "title": "Switch Label",
               "type": "string",
-              "required": true,
               "placeholder": "Living Room HDMI Switch",
               "description": "Friendly name for this switch (will appear in HomeKit)"
             },
@@ -49,14 +48,12 @@
               "title": "IP Address",
               "type": "string",
               "format": "ipv4",
-              "required": true,
               "placeholder": "192.168.1.10",
               "description": "Static IP address of your TESmart switch. Make sure to assign a static IP in your router."
             },
             "model": {
               "title": "Model",
               "type": "string",
-              "required": false,
               "default": "16x1",
               "oneOf": [
                 { "title": "8-Port (8x1)", "enum": ["8x1"] },
