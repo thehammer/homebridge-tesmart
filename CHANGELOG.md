@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2025-10-17
+
+### Removed
+- **LED timeout HomeKit control removed** (breaking change)
+  - Removed the LED Timeout Television/InputSource selector from HomeKit interface
+  - LED timeout can still be configured via config.json `led_timeout` setting
+  - The Television service pattern was causing conflicts with main HDMI input controls
+  - LED timeout setting is applied on connection and persists on the switch hardware
+
+### Note
+- If upgrading from v1.7.0-1.8.0, the LED Timeout control will be automatically removed from HomeKit
+- Each switch now has two toggle controls: Buzzer and Auto-Detect Input
+
 ## [1.8.0] - 2025-10-15
 
 ### Changed

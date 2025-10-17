@@ -15,8 +15,7 @@ Control your TESmart HDMI/KVM switches through Apple HomeKit using Homebridge.
 - 🏷️ Custom labels for each input
 - 👁️ Hide/show specific inputs in HomeKit
 - 🔧 **Dynamic polling control** - Enable/disable auto-detect from HomeKit without restarting
-- 🔕 **Control buzzer directly from HomeKit** - Toggle buzzer mute on/off without restarting
-- 💡 **Control LED timeout from HomeKit** - Select between 10s, 30s, or always on
+- 🔕 **Control buzzer directly from HomeKit** - Toggle buzzer on/off without restarting
 - 📡 Supports multiple switches
 
 ## Compatibility
@@ -252,14 +251,10 @@ The switch will appear as a **Television** accessory in HomeKit.
 
 **Additional Controls:**
 
-Each switch also includes three additional accessories:
+Each switch also includes two additional accessories:
 - **Buzzer** - Toggle switch to enable/disable the beep sound when changing inputs
   - On = Buzzer enabled (beeps)
   - Off = Buzzer muted (silent)
-- **LED Timeout** - Selector list with labeled options:
-  - Always On
-  - 10 Seconds
-  - 30 Seconds
 - **Auto-Detect Input** - Toggle to enable/disable automatic input detection
   - On = Two-way control (HomeKit shows external input changes)
   - Off = One-way control (HomeKit controls switch only, reduces network traffic)
@@ -274,11 +269,6 @@ Each switch also includes three additional accessories:
 - "Turn on Buzzer" (enables beep sounds)
 - "Turn off Buzzer" (mutes beep sounds)
 
-**LED Timeout Control:**
-- "Switch LED Timeout to Always On"
-- "Switch LED Timeout to 10 Seconds"
-- "Switch LED Timeout to 30 Seconds"
-
 **Auto-Detect Input Control:**
 - "Turn on Auto-Detect Input" (enables two-way control)
 - "Turn off Auto-Detect Input" (one-way control only)
@@ -288,7 +278,6 @@ Each switch also includes three additional accessories:
 Use HomeKit automations to automatically:
 - Switch inputs based on time of day or presence
 - Mute buzzer at night
-- Set LED timeout based on room lighting
 - Disable auto-detect when away to reduce network traffic
 - Trigger input changes when other accessories activate
 
