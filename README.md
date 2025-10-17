@@ -252,11 +252,12 @@ The switch will appear as a **Television** accessory in HomeKit.
 
 **Additional Controls:**
 
-Each switch also includes three additional switch accessories:
-- **Mute Buzzer** - Toggle to mute/unmute the beep sound when changing inputs
-- **LED Timeout 10s** - Turn on to set LED timeout to 10 seconds (turns off other timeout options)
-- **LED Timeout 30s** - Turn on to set LED timeout to 30 seconds (turns off other timeout options)
-- When both LED timeout switches are off, LEDs stay on always
+Each switch also includes two additional accessories:
+- **Mute Buzzer** - Toggle switch to mute/unmute the beep sound when changing inputs
+- **LED Timeout** - Fan accessory with 3 speed settings:
+  - Off (0%) = LEDs always on
+  - Low (33%) = 10 second timeout
+  - High (67%) = 30 second timeout
 
 ### With Siri
 
@@ -269,9 +270,9 @@ Each switch also includes three additional switch accessories:
 - "Turn off Mute Buzzer" (enables beep sounds)
 
 **LED Timeout Control:**
-- "Turn on LED Timeout 10s" (sets 10 second timeout)
-- "Turn on LED Timeout 30s" (sets 30 second timeout)
-- "Turn off LED Timeout 10s and LED Timeout 30s" (LEDs always on)
+- "Set LED Timeout to 0%" or "Turn off LED Timeout" (LEDs always on)
+- "Set LED Timeout to 33%" (10 second timeout)
+- "Set LED Timeout to 67%" (30 second timeout)
 
 ### In Automation
 

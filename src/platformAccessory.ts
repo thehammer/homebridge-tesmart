@@ -10,8 +10,7 @@ export class TESmartSwitchAccessory {
   private inputs: Array<Service>;
   private pollingInterval?: NodeJS.Timeout;
   private buzzerMuteSwitch?: Service;
-  private ledTimeout10sSwitch?: Service;
-  private ledTimeout30sSwitch?: Service;
+  private ledTimeoutFan?: Service;
 
   constructor(
     private readonly platform: TESmartSwitchPlatform,
@@ -120,33 +119,36 @@ export class TESmartSwitchAccessory {
     // Set initial state from config
     this.buzzerMuteSwitch.updateCharacteristic(Characteristic.On, config.mute_buzzer || false);
 
-    // Add LED timeout switches (mutually exclusive group)
-    const led10sName = `${config.label} LED 10s`;
-    this.ledTimeout10sSwitch = this.accessory.getServiceById(Service.Switch, 'led-timeout-10s') ||
-                                this.accessory.addService(Service.Switch, led10sName, 'led-timeout-10s');
-    this.ledTimeout10sSwitch
-      .setCharacteristic(Characteristic.Name, led10sName)
-      .setCharacteristic(Characteristic.ConfiguredName, led10sName)
+    // Add LED timeout control using Fan service for selector-style interface
+    // Fan rotation speed: 0 = Always On, 33 = 10s, 66 = 30s
+    const ledFanName = `${config.label} LED Timeout`;
+    this.ledTimeoutFan = this.accessory.getServiceById(Service.Fanv2, 'led-timeout') ||
+                         this.accessory.addService(Service.Fanv2, ledFanName, 'led-timeout');
+    this.ledTimeoutFan
+      .setCharacteristic(Characteristic.Name, ledFanName)
+      .setCharacteristic(Characteristic.ConfiguredName, ledFanName)
       .setHiddenService(true);
-    this.ledTimeout10sSwitch.getCharacteristic(Characteristic.On)
-      .onGet(this.handleLEDTimeout10sGet.bind(this))
-      .onSet(this.handleLEDTimeout10sSet.bind(this));
 
-    const led30sName = `${config.label} LED 30s`;
-    this.ledTimeout30sSwitch = this.accessory.getServiceById(Service.Switch, 'led-timeout-30s') ||
-                                this.accessory.addService(Service.Switch, led30sName, 'led-timeout-30s');
-    this.ledTimeout30sSwitch
-      .setCharacteristic(Characteristic.Name, led30sName)
-      .setCharacteristic(Characteristic.ConfiguredName, led30sName)
-      .setHiddenService(true);
-    this.ledTimeout30sSwitch.getCharacteristic(Characteristic.On)
-      .onGet(this.handleLEDTimeout30sGet.bind(this))
-      .onSet(this.handleLEDTimeout30sSet.bind(this));
+    // Always active (fan is always "on")
+    this.ledTimeoutFan.getCharacteristic(Characteristic.Active)
+      .onGet(() => Characteristic.Active.ACTIVE)
+      .onSet(() => { /* No-op, always active */ });
+
+    // Rotation speed controls the timeout value
+    this.ledTimeoutFan.getCharacteristic(Characteristic.RotationSpeed)
+      .setProps({ minValue: 0, maxValue: 100, minStep: 33.34 })
+      .onGet(this.handleLEDTimeoutGet.bind(this))
+      .onSet(this.handleLEDTimeoutSet.bind(this));
 
     // Set initial LED timeout state from config
     const ledTimeout = config.led_timeout || 'never';
-    this.ledTimeout10sSwitch.updateCharacteristic(Characteristic.On, ledTimeout === '10s');
-    this.ledTimeout30sSwitch.updateCharacteristic(Characteristic.On, ledTimeout === '30s');
+    let initialSpeed = 0;
+    if (ledTimeout === '10s') {
+      initialSpeed = 33.34;
+    } else if (ledTimeout === '30s') {
+      initialSpeed = 66.68;
+    }
+    this.ledTimeoutFan.updateCharacteristic(Characteristic.RotationSpeed, initialSpeed);
 
     // Poll for active input changes (unless disabled)
     if (!config.disable_polling) {
@@ -223,48 +225,39 @@ export class TESmartSwitchAccessory {
   }
 
   /**
-   * LED timeout 10s switch handlers
+   * LED timeout fan handlers (rotation speed maps to timeout)
+   * 0 = Always On, 33.34 = 10s, 66.68 = 30s
    */
-  handleLEDTimeout10sGet(): boolean {
-    this.platform.log.debug('Triggered GET LED Timeout 10s');
-    return this.switchAPI.getLEDTimeout() === '10s';
-  }
+  handleLEDTimeoutGet(): number {
+    this.platform.log.debug('Triggered GET LED Timeout');
+    const timeout = this.switchAPI.getLEDTimeout();
 
-  handleLEDTimeout10sSet(value: CharacteristicValue) {
-    this.platform.log.debug('Triggered SET LED Timeout 10s:', value);
-    const isOn = value as boolean;
-
-    if (isOn) {
-      // Turn on 10s timeout
-      this.switchAPI.setLEDTimeout10s();
-      // Turn off the 30s switch
-      this.ledTimeout30sSwitch?.updateCharacteristic(this.platform.Characteristic.On, false);
+    if (timeout === '10s') {
+      return 33.34;
+    } else if (timeout === '30s') {
+      return 66.68;
     } else {
-      // If turning off 10s, set to never (always on)
-      this.switchAPI.setLEDTimeoutNever();
+      return 0; // never (always on)
     }
   }
 
-  /**
-   * LED timeout 30s switch handlers
-   */
-  handleLEDTimeout30sGet(): boolean {
-    this.platform.log.debug('Triggered GET LED Timeout 30s');
-    return this.switchAPI.getLEDTimeout() === '30s';
-  }
+  handleLEDTimeoutSet(value: CharacteristicValue) {
+    this.platform.log.debug('Triggered SET LED Timeout:', value);
+    const speed = value as number;
 
-  handleLEDTimeout30sSet(value: CharacteristicValue) {
-    this.platform.log.debug('Triggered SET LED Timeout 30s:', value);
-    const isOn = value as boolean;
-
-    if (isOn) {
-      // Turn on 30s timeout
-      this.switchAPI.setLEDTimeout30s();
-      // Turn off the 10s switch
-      this.ledTimeout10sSwitch?.updateCharacteristic(this.platform.Characteristic.On, false);
-    } else {
-      // If turning off 30s, set to never (always on)
+    // Map rotation speed to timeout setting
+    // 0-16: Always On
+    // 17-49: 10s
+    // 50-100: 30s
+    if (speed < 17) {
+      this.platform.log.debug('Setting LED timeout to Always On');
       this.switchAPI.setLEDTimeoutNever();
+    } else if (speed < 50) {
+      this.platform.log.debug('Setting LED timeout to 10s');
+      this.switchAPI.setLEDTimeout10s();
+    } else {
+      this.platform.log.debug('Setting LED timeout to 30s');
+      this.switchAPI.setLEDTimeout30s();
     }
   }
 }

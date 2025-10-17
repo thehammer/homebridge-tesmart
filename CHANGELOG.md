@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-10-15
+
+### Changed
+- **LED timeout control now uses a selector interface** (breaking change)
+  - Replaced two separate toggle switches with a single Fan accessory
+  - Fan speed controls LED timeout: Off (0%) = Always On, Low (33%) = 10s, High (67%) = 30s
+  - Provides a cleaner, more intuitive interface similar to input selection
+  - Use slider or percentage commands with Siri
+  - Old LED timeout switches will be automatically removed
+
+### Note
+- If you're upgrading from v1.4.x, you may need to remove and re-add the accessory in HomeKit for the LED timeout control to appear correctly
+
 ## [1.4.2] - 2025-10-15
 
 ### Changed
