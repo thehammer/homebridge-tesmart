@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-10-15
+
+### Added
+- **Dynamic auto-detect input control** - New switch accessory to enable/disable polling from HomeKit
+  - Toggle between two-way control (auto-detect external changes) and one-way control (HomeKit only)
+  - No need to restart Homebridge to change polling behavior
+  - Useful for reducing network traffic when auto-detection isn't needed
+  - Accessible via "Auto-Detect Input" switch in accessory details
+
 ## [1.5.0] - 2025-10-15
 
 ### Changed

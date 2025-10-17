@@ -9,8 +9,10 @@ export class TESmartSwitchAccessory {
   private switchAPI: SwitchAPI;
   private inputs: Array<Service>;
   private pollingInterval?: NodeJS.Timeout;
+  private pollingIntervalMs: number;
   private buzzerMuteSwitch?: Service;
   private ledTimeoutFan?: Service;
+  private pollingEnabledSwitch?: Service;
 
   constructor(
     private readonly platform: TESmartSwitchPlatform,
@@ -150,15 +152,55 @@ export class TESmartSwitchAccessory {
     }
     this.ledTimeoutFan.updateCharacteristic(Characteristic.RotationSpeed, initialSpeed);
 
-    // Poll for active input changes (unless disabled)
-    if (!config.disable_polling) {
-      const pollingInterval = config.polling_interval || 1000;
-      this.pollingInterval = setInterval(() => {
-        this.switchService.getCharacteristic(Characteristic.ActiveIdentifier).updateValue(this.switchAPI.getActiveInput());
-      }, pollingInterval);
-      this.platform.log.debug(`Polling enabled with interval: ${pollingInterval}ms`);
+    // Add polling enabled switch
+    const pollingName = `${config.label} Auto-Detect Input`;
+    this.pollingEnabledSwitch = this.accessory.getServiceById(Service.Switch, 'polling-enabled') ||
+                                this.accessory.addService(Service.Switch, pollingName, 'polling-enabled');
+    this.pollingEnabledSwitch
+      .setCharacteristic(Characteristic.Name, pollingName)
+      .setCharacteristic(Characteristic.ConfiguredName, pollingName)
+      .setHiddenService(true);
+    this.pollingEnabledSwitch.getCharacteristic(Characteristic.On)
+      .onGet(this.handlePollingEnabledGet.bind(this))
+      .onSet(this.handlePollingEnabledSet.bind(this));
+
+    // Store polling interval and start polling if enabled
+    this.pollingIntervalMs = config.polling_interval || 1000;
+    const pollingEnabled = !config.disable_polling;
+    this.pollingEnabledSwitch.updateCharacteristic(Characteristic.On, pollingEnabled);
+
+    if (pollingEnabled) {
+      this.startPolling();
     } else {
       this.platform.log.info(`Polling disabled for switch "${config.label}" - one-way control only`);
+    }
+  }
+
+  /**
+   * Start polling for input changes
+   */
+  private startPolling() {
+    // Clear any existing polling interval
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
+
+    this.pollingInterval = setInterval(() => {
+      this.switchService.getCharacteristic(this.platform.Characteristic.ActiveIdentifier)
+        .updateValue(this.switchAPI.getActiveInput());
+    }, this.pollingIntervalMs);
+
+    this.platform.log.debug(`Polling enabled with interval: ${this.pollingIntervalMs}ms`);
+  }
+
+  /**
+   * Stop polling for input changes
+   */
+  private stopPolling() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = undefined;
+      this.platform.log.debug('Polling disabled');
     }
   }
 
@@ -166,10 +208,7 @@ export class TESmartSwitchAccessory {
    * Clean up resources when accessory is removed
    */
   destroy() {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = undefined;
-    }
+    this.stopPolling();
     this.switchAPI.disconnect();
   }
 
@@ -258,6 +297,27 @@ export class TESmartSwitchAccessory {
     } else {
       this.platform.log.debug('Setting LED timeout to 30s');
       this.switchAPI.setLEDTimeout30s();
+    }
+  }
+
+  /**
+   * Polling enabled switch handlers
+   */
+  handlePollingEnabledGet(): boolean {
+    this.platform.log.debug('Triggered GET Polling Enabled');
+    return this.pollingInterval !== undefined;
+  }
+
+  handlePollingEnabledSet(value: CharacteristicValue) {
+    this.platform.log.debug('Triggered SET Polling Enabled:', value);
+    const enabled = value as boolean;
+
+    if (enabled) {
+      this.platform.log.info('Enabling auto-detect input (two-way control)');
+      this.startPolling();
+    } else {
+      this.platform.log.info('Disabling auto-detect input (one-way control only)');
+      this.stopPolling();
     }
   }
 }

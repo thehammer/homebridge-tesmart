@@ -14,9 +14,9 @@ Control your TESmart HDMI/KVM switches through Apple HomeKit using Homebridge.
 - ⚙️ Easy configuration through Homebridge UI
 - 🏷️ Custom labels for each input
 - 👁️ Hide/show specific inputs in HomeKit
-- 🔧 Configurable polling interval or disable polling for one-way control
+- 🔧 **Dynamic polling control** - Enable/disable auto-detect from HomeKit without restarting
 - 🔕 **Control buzzer directly from HomeKit** - Toggle buzzer mute on/off without restarting
-- 💡 **Control LED timeout from HomeKit** - Switch between 10s, 30s, or always on
+- 💡 **Control LED timeout from HomeKit** - Select between 10s, 30s, or always on
 - 📡 Supports multiple switches
 
 ## Compatibility
@@ -252,12 +252,15 @@ The switch will appear as a **Television** accessory in HomeKit.
 
 **Additional Controls:**
 
-Each switch also includes two additional accessories:
+Each switch also includes three additional accessories:
 - **Mute Buzzer** - Toggle switch to mute/unmute the beep sound when changing inputs
 - **LED Timeout** - Fan accessory with 3 speed settings:
   - Off (0%) = LEDs always on
   - Low (33%) = 10 second timeout
   - High (67%) = 30 second timeout
+- **Auto-Detect Input** - Toggle to enable/disable automatic input detection
+  - On = Two-way control (HomeKit shows external input changes)
+  - Off = One-way control (HomeKit controls switch only, reduces network traffic)
 
 ### With Siri
 
@@ -274,12 +277,17 @@ Each switch also includes two additional accessories:
 - "Set LED Timeout to 33%" (10 second timeout)
 - "Set LED Timeout to 67%" (30 second timeout)
 
+**Auto-Detect Input Control:**
+- "Turn on Auto-Detect Input" (enables two-way control)
+- "Turn off Auto-Detect Input" (one-way control only)
+
 ### In Automation
 
 Use HomeKit automations to automatically:
 - Switch inputs based on time of day or presence
 - Mute buzzer at night
 - Set LED timeout based on room lighting
+- Disable auto-detect when away to reduce network traffic
 - Trigger input changes when other accessories activate
 
 ## Troubleshooting
