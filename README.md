@@ -253,7 +253,9 @@ The switch will appear as a **Television** accessory in HomeKit.
 **Additional Controls:**
 
 Each switch also includes three additional accessories:
-- **Mute Buzzer** - Toggle switch to mute/unmute the beep sound when changing inputs
+- **Buzzer** - Toggle switch to enable/disable the beep sound when changing inputs
+  - On = Buzzer enabled (beeps)
+  - Off = Buzzer muted (silent)
 - **LED Timeout** - Selector list with labeled options:
   - Always On
   - 10 Seconds
@@ -269,8 +271,8 @@ Each switch also includes three additional accessories:
 - "Change Living Room HDMI to PlayStation 5"
 
 **Buzzer Control:**
-- "Turn on Mute Buzzer" (mutes beep sounds)
-- "Turn off Mute Buzzer" (enables beep sounds)
+- "Turn on Buzzer" (enables beep sounds)
+- "Turn off Buzzer" (mutes beep sounds)
 
 **LED Timeout Control:**
 - "Switch LED Timeout to Always On"

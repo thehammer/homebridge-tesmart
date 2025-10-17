@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2025-10-15
+
+### Changed
+- **Buzzer switch logic inverted for better UX** (breaking change)
+  - Renamed from "Mute Buzzer" to "Buzzer"
+  - On = Buzzer enabled (beeps when switching inputs)
+  - Off = Buzzer muted (silent)
+  - More intuitive: "Turn on Buzzer" vs "Turn off Mute Buzzer"
+- **Main Television service set as primary**
+  - Should improve summary view display in HomeKit
+  - Focus on current input instead of control accessories
+
 ## [1.7.0] - 2025-10-15
 
 ### Changed

@@ -49,6 +49,7 @@ export class TESmartSwitchAccessory {
     this.switchService.setCharacteristic(Characteristic.Name, accessory.context.device.label);
     this.switchService.setCharacteristic(Characteristic.Active, Characteristic.Active.ACTIVE);
     this.switchService.setCharacteristic(Characteristic.ActiveIdentifier, 1);
+    this.switchService.setPrimaryService(true);
 
     this.switchService.getCharacteristic(Characteristic.Active)
       .onGet(this.handleActiveGet.bind(this))
@@ -108,8 +109,8 @@ export class TESmartSwitchAccessory {
     this.switchService.getCharacteristic(Characteristic.DisplayOrder)
       .updateValue(this.platform.api.hap.encode(1, displayOrder).toString('base64'));
 
-    // Add buzzer mute switch
-    const buzzerName = `${config.label} Mute Buzzer`;
+    // Add buzzer switch (On = buzzer enabled, Off = buzzer muted)
+    const buzzerName = `${config.label} Buzzer`;
     this.buzzerMuteSwitch = this.accessory.getServiceById(Service.Switch, 'buzzer-mute') ||
                             this.accessory.addService(Service.Switch, buzzerName, 'buzzer-mute');
     this.buzzerMuteSwitch
@@ -117,10 +118,10 @@ export class TESmartSwitchAccessory {
       .setCharacteristic(Characteristic.ConfiguredName, buzzerName)
       .setHiddenService(true);
     this.buzzerMuteSwitch.getCharacteristic(Characteristic.On)
-      .onGet(this.handleBuzzerMuteGet.bind(this))
-      .onSet(this.handleBuzzerMuteSet.bind(this));
-    // Set initial state from config
-    this.buzzerMuteSwitch.updateCharacteristic(Characteristic.On, config.mute_buzzer || false);
+      .onGet(this.handleBuzzerEnabledGet.bind(this))
+      .onSet(this.handleBuzzerEnabledSet.bind(this));
+    // Set initial state from config (inverted: mute_buzzer=true means switch is OFF)
+    this.buzzerMuteSwitch.updateCharacteristic(Characteristic.On, !(config.mute_buzzer || false));
 
     // Add LED timeout control using Television service with InputSources for labeled list
     const ledServiceName = `${config.label} LED Timeout`;
@@ -271,21 +272,21 @@ export class TESmartSwitchAccessory {
   }
 
   /**
-   * Buzzer mute switch handlers
+   * Buzzer enabled switch handlers (On = buzzer enabled, Off = buzzer muted)
    */
-  handleBuzzerMuteGet(): boolean {
-    this.platform.log.debug('Triggered GET Buzzer Mute');
-    return this.switchAPI.isBuzzerMuted();
+  handleBuzzerEnabledGet(): boolean {
+    this.platform.log.debug('Triggered GET Buzzer Enabled');
+    return !this.switchAPI.isBuzzerMuted(); // Inverted logic
   }
 
-  handleBuzzerMuteSet(value: CharacteristicValue) {
-    this.platform.log.debug('Triggered SET Buzzer Mute:', value);
-    const shouldMute = value as boolean;
+  handleBuzzerEnabledSet(value: CharacteristicValue) {
+    this.platform.log.debug('Triggered SET Buzzer Enabled:', value);
+    const enabled = value as boolean;
 
-    if (shouldMute) {
-      this.switchAPI.muteBuzzer();
+    if (enabled) {
+      this.switchAPI.unmuteBuzzer(); // On = unmute
     } else {
-      this.switchAPI.unmuteBuzzer();
+      this.switchAPI.muteBuzzer(); // Off = mute
     }
   }
 
