@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2025-10-15
+
+### Changed
+- **LED timeout now uses a labeled selector list** (breaking change from v1.5.0)
+  - Replaced Fan service (percentages) with Television/InputSource pattern
+  - Shows clear labeled options: "Always On", "10 Seconds", "30 Seconds"
+  - Much more intuitive than percentage-based fan speeds
+  - Uses same UI pattern as HDMI input selection
+  - Works with natural Siri commands like "Switch LED Timeout to 10 Seconds"
+
+### Note
+- If upgrading from v1.5.0-1.6.0, the Fan-based LED control will be replaced automatically
+- May need to remove/re-add accessory in HomeKit if the control doesn't appear correctly
+
 ## [1.6.0] - 2025-10-15
 
 ### Added

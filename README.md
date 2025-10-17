@@ -254,10 +254,10 @@ The switch will appear as a **Television** accessory in HomeKit.
 
 Each switch also includes three additional accessories:
 - **Mute Buzzer** - Toggle switch to mute/unmute the beep sound when changing inputs
-- **LED Timeout** - Fan accessory with 3 speed settings:
-  - Off (0%) = LEDs always on
-  - Low (33%) = 10 second timeout
-  - High (67%) = 30 second timeout
+- **LED Timeout** - Selector list with labeled options:
+  - Always On
+  - 10 Seconds
+  - 30 Seconds
 - **Auto-Detect Input** - Toggle to enable/disable automatic input detection
   - On = Two-way control (HomeKit shows external input changes)
   - Off = One-way control (HomeKit controls switch only, reduces network traffic)
@@ -273,9 +273,9 @@ Each switch also includes three additional accessories:
 - "Turn off Mute Buzzer" (enables beep sounds)
 
 **LED Timeout Control:**
-- "Set LED Timeout to 0%" or "Turn off LED Timeout" (LEDs always on)
-- "Set LED Timeout to 33%" (10 second timeout)
-- "Set LED Timeout to 67%" (30 second timeout)
+- "Switch LED Timeout to Always On"
+- "Switch LED Timeout to 10 Seconds"
+- "Switch LED Timeout to 30 Seconds"
 
 **Auto-Detect Input Control:**
 - "Turn on Auto-Detect Input" (enables two-way control)
