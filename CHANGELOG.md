@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-10-15
+
+### Changed
+- Switch accessories (buzzer, LED timeout) are now hidden from the primary accessory summary view
+  - The TV accessory tile now shows only the current input, providing a cleaner interface
+  - Control switches are still fully accessible when you open the accessory details
+  - This prevents clutter in the HomeKit summary view
+
 ## [1.4.1] - 2025-10-15
 
 ### Fixed

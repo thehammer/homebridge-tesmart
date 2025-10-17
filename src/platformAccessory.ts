@@ -112,7 +112,8 @@ export class TESmartSwitchAccessory {
                             this.accessory.addService(Service.Switch, buzzerName, 'buzzer-mute');
     this.buzzerMuteSwitch
       .setCharacteristic(Characteristic.Name, buzzerName)
-      .setCharacteristic(Characteristic.ConfiguredName, buzzerName);
+      .setCharacteristic(Characteristic.ConfiguredName, buzzerName)
+      .setHiddenService(true);
     this.buzzerMuteSwitch.getCharacteristic(Characteristic.On)
       .onGet(this.handleBuzzerMuteGet.bind(this))
       .onSet(this.handleBuzzerMuteSet.bind(this));
@@ -125,7 +126,8 @@ export class TESmartSwitchAccessory {
                                 this.accessory.addService(Service.Switch, led10sName, 'led-timeout-10s');
     this.ledTimeout10sSwitch
       .setCharacteristic(Characteristic.Name, led10sName)
-      .setCharacteristic(Characteristic.ConfiguredName, led10sName);
+      .setCharacteristic(Characteristic.ConfiguredName, led10sName)
+      .setHiddenService(true);
     this.ledTimeout10sSwitch.getCharacteristic(Characteristic.On)
       .onGet(this.handleLEDTimeout10sGet.bind(this))
       .onSet(this.handleLEDTimeout10sSet.bind(this));
@@ -135,7 +137,8 @@ export class TESmartSwitchAccessory {
                                 this.accessory.addService(Service.Switch, led30sName, 'led-timeout-30s');
     this.ledTimeout30sSwitch
       .setCharacteristic(Characteristic.Name, led30sName)
-      .setCharacteristic(Characteristic.ConfiguredName, led30sName);
+      .setCharacteristic(Characteristic.ConfiguredName, led30sName)
+      .setHiddenService(true);
     this.ledTimeout30sSwitch.getCharacteristic(Characteristic.On)
       .onGet(this.handleLEDTimeout30sGet.bind(this))
       .onSet(this.handleLEDTimeout30sSet.bind(this));
