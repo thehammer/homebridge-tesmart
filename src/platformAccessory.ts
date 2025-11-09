@@ -81,9 +81,28 @@ export class TESmartSwitchAccessory {
       const existingInput = this.switchService.linkedServices.find(source => source.subtype === input);
 
       if (existingInput) {
-        this.platform.log.debug('Input exists.');
+        // Log current state of existing input
+        const currentConfiguredName = existingInput.getCharacteristic(Characteristic.ConfiguredName).value;
+        this.platform.log.info(`[INPUT NAME DEBUG] Existing input found: ${input}`);
+        this.platform.log.info(`[INPUT NAME DEBUG] Config label: "${inputConfig.label}"`);
+        this.platform.log.info(`[INPUT NAME DEBUG] Current ConfiguredName characteristic: "${currentConfiguredName}"`);
+
+        // Check if they match
+        if (currentConfiguredName !== inputConfig.label) {
+          this.platform.log.warn(`[INPUT NAME DEBUG] MISMATCH DETECTED! ConfiguredName should be "${inputConfig.label}" but is "${currentConfiguredName}"`);
+        }
+
+        // Add listener to track if ConfiguredName gets changed externally
+        existingInput.getCharacteristic(Characteristic.ConfiguredName)
+          .on('change', (change) => {
+            this.platform.log.warn(`[INPUT NAME DEBUG] ConfiguredName CHANGED for ${input}! Old: "${change.oldValue}" -> New: "${change.newValue}"`);
+          });
       } else {
         this.platform.log.info('Adding new input: ', inputConfig.label);
+        this.platform.log.info(`[INPUT NAME DEBUG] Creating new input service: ${input}`);
+        this.platform.log.info(`[INPUT NAME DEBUG] addService displayName param: "${config.label}"`);
+        this.platform.log.info(`[INPUT NAME DEBUG] Will set ConfiguredName to: "${inputConfig.label}"`);
+
         const inputService = this.accessory.addService(this.platform.Service.InputSource, config.label, input);
 
         inputService.setCharacteristic(Characteristic.Identifier, identifier)
@@ -91,6 +110,16 @@ export class TESmartSwitchAccessory {
           .setCharacteristic(Characteristic.IsConfigured, Characteristic.IsConfigured.CONFIGURED)
           .setCharacteristic(Characteristic.InputSourceType, Characteristic.InputSourceType.HDMI)
           .setCharacteristic(Characteristic.Name, input);
+
+        // Verify what was actually set
+        const verifyConfiguredName = inputService.getCharacteristic(Characteristic.ConfiguredName).value;
+        this.platform.log.info(`[INPUT NAME DEBUG] Verified ConfiguredName after creation: "${verifyConfiguredName}"`);
+
+        // Add listener to track if ConfiguredName gets changed externally
+        inputService.getCharacteristic(Characteristic.ConfiguredName)
+          .on('change', (change) => {
+            this.platform.log.warn(`[INPUT NAME DEBUG] ConfiguredName CHANGED for ${input}! Old: "${change.oldValue}" -> New: "${change.newValue}"`);
+          });
 
         if (inputConfig.enabled) {
           inputService.setCharacteristic(Characteristic.CurrentVisibilityState, Characteristic.CurrentVisibilityState.SHOWN);
