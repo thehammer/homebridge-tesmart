@@ -94,6 +94,19 @@ export class TESmartSwitchAccessory {
           );
         }
 
+        // Update ConfiguredName to match config (fixes name not updating on restart)
+        this.platform.log.info(`[INPUT NAME DEBUG] Updating ConfiguredName to: "${inputConfig.label}"`);
+        existingInput.updateCharacteristic(Characteristic.ConfiguredName, inputConfig.label);
+
+        // Update visibility based on enabled status
+        const visibilityState = inputConfig.enabled
+          ? Characteristic.CurrentVisibilityState.SHOWN
+          : Characteristic.CurrentVisibilityState.HIDDEN;
+        existingInput.updateCharacteristic(Characteristic.CurrentVisibilityState, visibilityState);
+        this.platform.log.info(
+          `[INPUT NAME DEBUG] Updated visibility to: ${inputConfig.enabled ? 'SHOWN' : 'HIDDEN'}`,
+        );
+
         // Add listener to track if ConfiguredName gets changed externally
         existingInput.getCharacteristic(Characteristic.ConfiguredName)
           .on('change', (change) => {
@@ -101,13 +114,16 @@ export class TESmartSwitchAccessory {
               `[INPUT NAME DEBUG] ConfiguredName CHANGED for ${input}! Old: "${change.oldValue}" -> New: "${change.newValue}"`,
             );
           });
+
+        // Add existing input to inputs array for tracking
+        this.inputs.push(existingInput);
       } else {
         this.platform.log.info('Adding new input: ', inputConfig.label);
         this.platform.log.info(`[INPUT NAME DEBUG] Creating new input service: ${input}`);
-        this.platform.log.info(`[INPUT NAME DEBUG] addService displayName param: "${config.label}"`);
+        this.platform.log.info(`[INPUT NAME DEBUG] addService displayName param: "${inputConfig.label}"`);
         this.platform.log.info(`[INPUT NAME DEBUG] Will set ConfiguredName to: "${inputConfig.label}"`);
 
-        const inputService = this.accessory.addService(this.platform.Service.InputSource, config.label, input);
+        const inputService = this.accessory.addService(this.platform.Service.InputSource, inputConfig.label, input);
 
         inputService.setCharacteristic(Characteristic.Identifier, identifier)
           .setCharacteristic(Characteristic.ConfiguredName, inputConfig.label)
