@@ -247,7 +247,8 @@ export class TESmartSwitchAccessory {
   handleActiveIdentifierGet() {
     this.platform.log.debug('Triggered GET ActiveIdentifier');
 
-    const currentValue = 1;
+    const currentValue = this.switchAPI.getActiveInput();
+    this.platform.log.debug('Current active input:', currentValue);
 
     return currentValue;
   }
