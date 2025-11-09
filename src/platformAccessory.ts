@@ -89,13 +89,17 @@ export class TESmartSwitchAccessory {
 
         // Check if they match
         if (currentConfiguredName !== inputConfig.label) {
-          this.platform.log.warn(`[INPUT NAME DEBUG] MISMATCH DETECTED! ConfiguredName should be "${inputConfig.label}" but is "${currentConfiguredName}"`);
+          this.platform.log.warn(
+            `[INPUT NAME DEBUG] MISMATCH DETECTED! Expected "${inputConfig.label}" but is "${currentConfiguredName}"`,
+          );
         }
 
         // Add listener to track if ConfiguredName gets changed externally
         existingInput.getCharacteristic(Characteristic.ConfiguredName)
           .on('change', (change) => {
-            this.platform.log.warn(`[INPUT NAME DEBUG] ConfiguredName CHANGED for ${input}! Old: "${change.oldValue}" -> New: "${change.newValue}"`);
+            this.platform.log.warn(
+              `[INPUT NAME DEBUG] ConfiguredName CHANGED for ${input}! Old: "${change.oldValue}" -> New: "${change.newValue}"`,
+            );
           });
       } else {
         this.platform.log.info('Adding new input: ', inputConfig.label);
@@ -118,7 +122,9 @@ export class TESmartSwitchAccessory {
         // Add listener to track if ConfiguredName gets changed externally
         inputService.getCharacteristic(Characteristic.ConfiguredName)
           .on('change', (change) => {
-            this.platform.log.warn(`[INPUT NAME DEBUG] ConfiguredName CHANGED for ${input}! Old: "${change.oldValue}" -> New: "${change.newValue}"`);
+            this.platform.log.warn(
+              `[INPUT NAME DEBUG] ConfiguredName CHANGED for ${input}! Old: "${change.oldValue}" -> New: "${change.newValue}"`,
+            );
           });
 
         if (inputConfig.enabled) {
