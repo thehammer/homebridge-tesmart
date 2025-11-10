@@ -209,9 +209,9 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
         const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
         if (existingAccessory) {
-          // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. e.g.:
-          // existingAccessory.context.device = device;
-          // this.api.updatePlatformAccessories([existingAccessory]);
+          // Update the accessory context with the current (potentially migrated) config
+          existingAccessory.context.device = aSwitch;
+          this.api.updatePlatformAccessories([existingAccessory]);
 
           // create the accessory handler for the restored accessory
           // this is imported from `platformAccessory.ts`
