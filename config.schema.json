@@ -95,6 +95,38 @@
               ],
               "description": "How long the front panel LED stays on after switching inputs. 'Always On' keeps LEDs lit continuously."
             },
+            "inputs": {
+              "title": "Inputs",
+              "type": "array",
+              "description": "Configure HDMI inputs for this switch. Drag and drop to reorder how they appear in HomeKit.",
+              "items": {
+                "title": "Input",
+                "type": "object",
+                "properties": {
+                  "physicalInput": {
+                    "title": "Physical Input Number",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 16,
+                    "required": true,
+                    "description": "Which physical input port on the switch (1-16)"
+                  },
+                  "enabled": {
+                    "title": "Show in HomeKit",
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether this input should be visible in HomeKit"
+                  },
+                  "label": {
+                    "title": "Label",
+                    "type": "string",
+                    "required": true,
+                    "placeholder": "Apple TV",
+                    "description": "Friendly name for this input"
+                  }
+                }
+              }
+            },
             "input1": {
               "title": "Input 1",
               "type": "object",
@@ -275,9 +307,25 @@
         "switches[].mute_buzzer",
         "switches[].led_timeout",
         {
+          "key": "switches[].inputs",
+          "type": "array",
+          "title": "Inputs (Drag to Reorder)",
+          "description": "Configure and reorder inputs via drag & drop. The order here determines how inputs appear in HomeKit.",
+          "orderable": true,
+          "buttonText": "Add Input",
+          "expandable": true,
+          "expanded": true,
+          "items": [
+            "switches[].inputs[].physicalInput",
+            "switches[].inputs[].label",
+            "switches[].inputs[].enabled"
+          ]
+        },
+        {
           "key": "switches[]",
           "type": "section",
-          "title": "Input Configuration",
+          "title": "Input Configuration (Legacy)",
+          "description": "Legacy configuration format. Will be automatically migrated to the new Inputs array above.",
           "expandable": true,
           "expanded": false,
           "items": [

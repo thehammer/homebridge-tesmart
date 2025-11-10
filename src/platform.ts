@@ -2,7 +2,7 @@ import { API, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig,
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { TESmartSwitchAccessory } from './platformAccessory.js';
-import { TESmartPlatformConfig, SwitchConfig } from './types.js';
+import { TESmartPlatformConfig, SwitchConfig, InputConfig, InputConfigV2 } from './types.js';
 import { TESmartDiscovery } from './discovery.js';
 
 export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
@@ -77,10 +77,69 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
   }
 
   /**
+   * Migrates legacy input1-input16 config format to new inputs array format
+   */
+  private migrateInputConfig(switchConfig: SwitchConfig): boolean {
+    // Check if already migrated (has inputs array)
+    if (switchConfig.inputs && Array.isArray(switchConfig.inputs) && switchConfig.inputs.length > 0) {
+      return false; // Already in new format, no migration needed
+    }
+
+    // Check if old format exists
+    const hasOldFormat = Object.keys(switchConfig).some(key =>
+      key.match(/^input\d+$/),
+    );
+
+    if (!hasOldFormat) {
+      return false; // No inputs configured at all
+    }
+
+    // Migrate from old to new format
+    const migratedInputs: InputConfigV2[] = [];
+
+    for (let i = 1; i <= 16; i++) {
+      const inputKey = `input${i}` as keyof SwitchConfig;
+      const oldInput = switchConfig[inputKey] as InputConfig | undefined;
+
+      if (oldInput) {
+        migratedInputs.push({
+          physicalInput: i,
+          enabled: oldInput.enabled ?? true,
+          label: oldInput.label || `Input ${i}`,
+        });
+      }
+    }
+
+    // Set new format
+    switchConfig.inputs = migratedInputs;
+
+    this.log.warn(`[CONFIG MIGRATION] Migrated input configuration for switch "${switchConfig.label}"`);
+    this.log.warn('[CONFIG MIGRATION] Old input1-input16 format converted to new "inputs" array');
+    this.log.warn('[CONFIG MIGRATION] You can now reorder inputs via drag & drop in Homebridge UI');
+    this.log.warn('[CONFIG MIGRATION] Please save your config in Homebridge UI to persist these changes');
+
+    return true; // Migration performed
+  }
+
+  /**
    * Initialize devices: run discovery if enabled, then configure all switches
    */
   private async initializeDevices(config: TESmartPlatformConfig): Promise<void> {
     const configuredSwitches: SwitchConfig[] = config.switches || [];
+
+    // Migrate any switches with legacy input format
+    let migrationPerformed = false;
+    configuredSwitches.forEach(switchConfig => {
+      if (this.migrateInputConfig(switchConfig)) {
+        migrationPerformed = true;
+      }
+    });
+
+    if (migrationPerformed) {
+      this.log.warn('[CONFIG MIGRATION] Migration complete! Inputs will work with legacy config.');
+      this.log.warn('[CONFIG MIGRATION] To enable drag & drop reordering, save your config via Homebridge UI.');
+    }
+
     let allSwitches: SwitchConfig[] = [...configuredSwitches];
 
     // Run network discovery if enabled

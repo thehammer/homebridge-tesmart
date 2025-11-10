@@ -3,6 +3,7 @@ import { CharacteristicValue, Service, PlatformAccessory, Categories } from 'hom
 import { TESmartSwitchPlatform } from './platform.js';
 // import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { SwitchAPI } from './switch_api.js';
+import { InputConfigV2 } from './types.js';
 
 export class TESmartSwitchAccessory {
   private switchService: Service;
@@ -67,14 +68,41 @@ export class TESmartSwitchAccessory {
         this.platform.log.debug('Set RemoteKey => ', newValue);
       });
 
-    for (let identifier = 1; identifier <= 16; identifier++) {
-      const input = 'input' + identifier;
-      const inputConfig = config[input];
+    // Build input list from either new array format or legacy format
+    const inputsToProcess: Array<{ identifier: number; label: string; enabled: boolean }> = [];
 
-      // Skip if input config is not defined
-      if (!inputConfig) {
-        continue;
+    if (config.inputs && Array.isArray(config.inputs) && config.inputs.length > 0) {
+      // New array format - use order from array
+      this.platform.log.debug('Using new inputs array format');
+      config.inputs.forEach((input: InputConfigV2) => {
+        inputsToProcess.push({
+          identifier: input.physicalInput,
+          label: input.label,
+          enabled: input.enabled ?? true,
+        });
+      });
+    } else {
+      // Legacy format - use input1-input16 in order
+      this.platform.log.debug('Using legacy input1-input16 format');
+      for (let identifier = 1; identifier <= 16; identifier++) {
+        const input = 'input' + identifier;
+        const inputConfig = config[input];
+
+        if (inputConfig) {
+          inputsToProcess.push({
+            identifier: identifier,
+            label: inputConfig.label,
+            enabled: inputConfig.enabled ?? true,
+          });
+        }
       }
+    }
+
+    // Process inputs in the order they were configured
+    for (const inputData of inputsToProcess) {
+      const identifier = inputData.identifier;
+      const input = 'input' + identifier;
+      const inputConfig = { label: inputData.label, enabled: inputData.enabled };
 
       displayOrder.push(identifier);
       this.platform.log('Input' + identifier, inputConfig.label);

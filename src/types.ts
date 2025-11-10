@@ -4,9 +4,18 @@
 import { PlatformConfig } from 'homebridge';
 
 /**
- * Configuration for a single HDMI input
+ * Configuration for a single HDMI input (legacy format)
  */
 export interface InputConfig {
+  enabled: boolean;
+  label: string;
+}
+
+/**
+ * Configuration for a single HDMI input (new array format)
+ */
+export interface InputConfigV2 {
+  physicalInput: number;  // 1-16, which physical input on the switch
   enabled: boolean;
   label: string;
 }
@@ -22,6 +31,11 @@ export interface SwitchConfig {
   disable_polling?: boolean;
   mute_buzzer?: boolean;
   led_timeout?: 'never' | '10s' | '30s';
+
+  // New array format (preferred)
+  inputs?: InputConfigV2[];
+
+  // Legacy format (will be auto-migrated)
   input1?: InputConfig;
   input2?: InputConfig;
   input3?: InputConfig;
