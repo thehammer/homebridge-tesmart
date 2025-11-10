@@ -118,6 +118,9 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
           enabled: oldInput.enabled ?? true,
           label: oldInput.label || `Input ${i}`,
         });
+
+        // Remove old format field
+        delete switchConfig[inputKey];
       }
     }
 

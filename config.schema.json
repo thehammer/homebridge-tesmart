@@ -102,13 +102,13 @@
               "items": {
                 "title": "Input",
                 "type": "object",
+                "required": ["physicalInput", "label"],
                 "properties": {
                   "physicalInput": {
                     "title": "Physical Input Number",
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 16,
-                    "required": true,
                     "description": "Which physical input port on the switch (1-16)"
                   },
                   "enabled": {
@@ -120,7 +120,6 @@
                   "label": {
                     "title": "Label",
                     "type": "string",
-                    "required": true,
                     "placeholder": "Apple TV",
                     "description": "Friendly name for this input"
                   }
