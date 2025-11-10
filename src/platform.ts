@@ -80,9 +80,20 @@ export class TESmartSwitchPlatform implements DynamicPlatformPlugin {
    * Migrates legacy input1-input16 config format to new inputs array format
    */
   private migrateInputConfig(switchConfig: SwitchConfig): boolean {
-    // Check if already migrated (has inputs array)
+    // Check if already migrated (has valid inputs array)
     if (switchConfig.inputs && Array.isArray(switchConfig.inputs) && switchConfig.inputs.length > 0) {
-      return false; // Already in new format, no migration needed
+      // Validate that inputs array has proper structure
+      const hasValidInputs = switchConfig.inputs.every(input =>
+        input.physicalInput !== undefined && input.label !== undefined,
+      );
+
+      if (hasValidInputs) {
+        return false; // Already in new format with valid data, no migration needed
+      }
+
+      // Invalid inputs array, clear it and migrate from legacy format
+      this.log.warn(`[CONFIG MIGRATION] Found invalid inputs array for switch "${switchConfig.label}", will migrate from legacy format`);
+      delete switchConfig.inputs;
     }
 
     // Check if old format exists
