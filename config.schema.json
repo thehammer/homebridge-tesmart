@@ -306,6 +306,10 @@
         "switches[].mute_buzzer",
         "switches[].led_timeout",
         {
+          "type": "help",
+          "helpvalue": "<script src='/plugins/homebridge-tesmart/migration.js'></script><p><strong>Using Legacy Input Format?</strong></p><p>If you have configured inputs using the old Input 1-16 format below, you can migrate them to the new array format:</p><button type='button' class='btn btn-primary' onclick='window.migrateInputs(0)'>Migrate Legacy Inputs to Array</button><p><small>This will copy your Input 1-16 configuration into the Inputs array above, allowing you to reorder them via drag &amp; drop.</small></p>"
+        },
+        {
           "key": "switches[].inputs",
           "type": "array",
           "title": "Inputs (Drag to Reorder)",
