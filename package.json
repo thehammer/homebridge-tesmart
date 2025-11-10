@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge TESmart",
   "name": "homebridge-tesmart",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "description": "Control TESmart HDMI/KVM switches through Apple HomeKit",
   "license": "Apache-2.0",
   "author": {
