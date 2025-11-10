@@ -204,8 +204,14 @@
 
     // Initialize: Check if migration is needed
     async function checkMigration() {
+      console.log('[UI] Checking migration status...');
       try {
+        // Test ping first
+        const pingResponse = await homebridge.request('/ping');
+        console.log('[UI] Ping response:', pingResponse);
+
         const response = await homebridge.request('/check-migration');
+        console.log('[UI] Migration check response:', response);
 
         if (response.needsMigration && !bannerDismissed) {
           const banner = document.getElementById('migrationBanner');
@@ -218,9 +224,13 @@
           }
 
           banner.classList.add('show');
+        } else {
+          console.log('[UI] No migration needed or banner dismissed');
         }
       } catch (error) {
-        console.error('Failed to check migration status:', error);
+        console.error('[UI] Failed to check migration status:', error);
+        // Show error in UI
+        showAlert('error', `Failed to check migration status: ${error.message}`);
       }
     }
 

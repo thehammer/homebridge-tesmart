@@ -9,15 +9,37 @@ class PluginUiServer extends HomebridgePluginUiServer {
   constructor() {
     super();
 
+    console.log('[INFO] TESmart Custom UI Server starting...');
+
+    // Test endpoint to verify server is running
+    this.onRequest('/ping', async () => {
+      console.log('[INFO] Ping received');
+      return { status: 'ok', message: 'TESmart UI server is running' };
+    });
+
     // Endpoint to check if any switches need migration
     this.onRequest('/check-migration', async () => {
-      const config = await this.getCachedConfig();
-      const needsMigration = this.checkIfMigrationNeeded(config);
+      try {
+        const config = await this.getCachedConfig();
+        console.log('[DEBUG] Retrieved config:', JSON.stringify(config, null, 2));
 
-      return {
-        needsMigration,
-        switchCount: needsMigration ? this.getLegacySwitchCount(config) : 0,
-      };
+        const needsMigration = this.checkIfMigrationNeeded(config);
+        const switchCount = needsMigration ? this.getLegacySwitchCount(config) : 0;
+
+        console.log('[DEBUG] Migration check result:', { needsMigration, switchCount });
+
+        return {
+          needsMigration,
+          switchCount,
+        };
+      } catch (error) {
+        console.error('[ERROR] Failed to check migration:', error);
+        return {
+          needsMigration: false,
+          switchCount: 0,
+          error: error.message,
+        };
+      }
     });
 
     // Endpoint to perform migration
