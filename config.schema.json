@@ -95,14 +95,6 @@
               ],
               "description": "How long the front panel LED stays on after switching inputs. 'Always On' keeps LEDs lit continuously."
             },
-            "migrateInputs": {
-              "title": " ",
-              "type": "boolean",
-              "description": "<button type='button' class='btn btn-primary' onclick='migrateInputsToArray(this)'>Migrate Legacy Inputs</button><br><small>Click to copy your input1-input16 configuration to the new Inputs array format</small>",
-              "condition": {
-                "functionBody": "return false;"
-              }
-            },
             "inputs": {
               "title": "Inputs",
               "type": "array",
@@ -313,7 +305,6 @@
         "switches[].polling_interval",
         "switches[].mute_buzzer",
         "switches[].led_timeout",
-        "switches[].migrateInputs",
         {
           "key": "switches[].inputs",
           "type": "array",
@@ -373,7 +364,5 @@
         }
       ]
     }
-  ],
-  "customUi": true,
-  "customUiScript": "function migrateInputsToArray(btn) { const switchIndex = parseInt(btn.closest('[data-switch-index]')?.getAttribute('data-switch-index') || '0'); const form = btn.closest('form'); if (!form) return; const inputs = []; for (let i = 1; i <= 16; i++) { const labelInput = form.querySelector(`[name='switches[${switchIndex}][input${i}][label]']`); const enabledInput = form.querySelector(`[name='switches[${switchIndex}][input${i}][enabled]']`); if (labelInput && labelInput.value) { inputs.push({ physicalInput: i, label: labelInput.value, enabled: enabledInput ? enabledInput.checked : true }); } } if (inputs.length === 0) { alert('No legacy inputs found to migrate.'); return; } const inputsContainer = form.querySelector(`[data-array-name='switches[${switchIndex}][inputs]']`); if (inputsContainer) { inputsContainer.innerHTML = ''; inputs.forEach(input => { const addButton = inputsContainer.querySelector('button.add-item'); if (addButton) addButton.click(); const lastItem = inputsContainer.querySelector('.array-item:last-child'); if (lastItem) { const physInput = lastItem.querySelector('[name*=\"[physicalInput]\"]'); const labelInput = lastItem.querySelector('[name*=\"[label]\"]'); const enabledInput = lastItem.querySelector('[name*=\"[enabled]\"]'); if (physInput) physInput.value = input.physicalInput; if (labelInput) labelInput.value = input.label; if (enabledInput) enabledInput.checked = input.enabled; } }); alert(`Successfully migrated ${inputs.length} inputs!\\n\\nPlease save your configuration to persist these changes.`); } else { alert('Could not find inputs array container. Please try refreshing the page.'); } }"
+  ]
 }
