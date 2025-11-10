@@ -71,9 +71,14 @@ export class TESmartSwitchAccessory {
     // Build input list from either new array format or legacy format
     const inputsToProcess: Array<{ identifier: number; label: string; enabled: boolean }> = [];
 
+    this.platform.log.debug(`[FORMAT DEBUG] config.inputs exists: ${!!config.inputs}`);
+    this.platform.log.debug(`[FORMAT DEBUG] config.inputs isArray: ${Array.isArray(config.inputs)}`);
+    this.platform.log.debug(`[FORMAT DEBUG] config.inputs length: ${config.inputs?.length}`);
+    this.platform.log.debug('[FORMAT DEBUG] config.inputs content:', JSON.stringify(config.inputs));
+
     if (config.inputs && Array.isArray(config.inputs) && config.inputs.length > 0) {
       // New array format - use order from array
-      this.platform.log.debug('Using new inputs array format');
+      this.platform.log.info('Using new inputs array format');
       config.inputs.forEach((input: InputConfigV2) => {
         inputsToProcess.push({
           identifier: input.physicalInput,
@@ -83,7 +88,7 @@ export class TESmartSwitchAccessory {
       });
     } else {
       // Legacy format - use input1-input16 in order
-      this.platform.log.debug('Using legacy input1-input16 format');
+      this.platform.log.info('Using legacy input1-input16 format');
       for (let identifier = 1; identifier <= 16; identifier++) {
         const input = 'input' + identifier;
         const inputConfig = config[input];
