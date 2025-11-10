@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TESmart Plugin</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .banner {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    .banner.show {
+      display: block;
+    }
+
+    .banner h3 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .banner p {
+      margin: 0 0 15px 0;
+      opacity: 0.95;
+      line-height: 1.5;
+    }
+
+    .banner-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #667eea;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      margin: 0 0 15px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card p {
+      margin: 0 0 15px 0;
+      color: #586069;
+      line-height: 1.5;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .help-text {
+      font-size: 13px;
+      color: #6a737d;
+      margin-top: 15px;
+      line-height: 1.6;
+    }
+
+    .help-text ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+
+    .help-text li {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Migration Banner (shown automatically if migration needed) -->
+  <div id="migrationBanner" class="banner">
+    <h3>🔄 Input Configuration Update Available</h3>
+    <p id="bannerMessage">Your configuration is using the legacy input format. Migrate to the new format to enable drag & drop reordering in the Homebridge Config UI.</p>
+    <div class="banner-actions">
+      <button id="bannerMigrateBtn" class="btn btn-primary">
+        <span class="btn-text">Migrate Now</span>
+      </button>
+      <button id="bannerDismissBtn" class="btn btn-secondary">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- Manual Migration Card -->
+  <div class="card">
+    <h3>Input Configuration Migration</h3>
+    <p>
+      This tool migrates your input configuration from the legacy <code>input1-input16</code> format
+      to the new <code>inputs</code> array format, which enables drag & drop reordering in the Homebridge UI.
+    </p>
+
+    <div id="alertContainer"></div>
+
+    <button id="manualMigrateBtn" class="btn btn-primary">
+      <span class="btn-text">Check & Migrate Configuration</span>
+    </button>
+
+    <div class="help-text">
+      <strong>What does migration do?</strong>
+      <ul>
+        <li>Converts <code>input1</code>, <code>input2</code>, etc. to the new <code>inputs</code> array format</li>
+        <li>Preserves all your custom input labels and enabled/disabled states</li>
+        <li>Enables drag & drop reordering in the Homebridge Config UI</li>
+        <li>Automatically removes invalid or malformed input configurations</li>
+      </ul>
+      <strong>Note:</strong> After migration, you must restart Homebridge for changes to take effect.
+    </div>
+  </div>
+
+  <script>
+    let bannerDismissed = false;
+
+    // Initialize: Check if migration is needed
+    async function checkMigration() {
+      try {
+        const response = await homebridge.request('/check-migration');
+
+        if (response.needsMigration && !bannerDismissed) {
+          const banner = document.getElementById('migrationBanner');
+          const message = document.getElementById('bannerMessage');
+
+          if (response.switchCount === 1) {
+            message.textContent = 'Your switch configuration is using the legacy input format. Migrate to the new format to enable drag & drop reordering in the Homebridge Config UI.';
+          } else {
+            message.textContent = `${response.switchCount} switches are using the legacy input format. Migrate to the new format to enable drag & drop reordering in the Homebridge Config UI.`;
+          }
+
+          banner.classList.add('show');
+        }
+      } catch (error) {
+        console.error('Failed to check migration status:', error);
+      }
+    }
+
+    // Perform migration
+    async function performMigration(button) {
+      const btnText = button.querySelector('.btn-text');
+      const originalText = btnText.textContent;
+
+      // Show loading state
+      button.disabled = true;
+      btnText.innerHTML = '<span class="spinner"></span>Migrating...';
+
+      try {
+        const response = await homebridge.request('/migrate-config');
+
+        if (response.success) {
+          showAlert('success', response.message);
+
+          // Hide banner if migration successful
+          document.getElementById('migrationBanner').classList.remove('show');
+
+          // Show toast notification
+          homebridge.toast.success(
+            `Migrated ${response.switchCount} switch${response.switchCount > 1 ? 'es' : ''} successfully`,
+            'Please restart Homebridge'
+          );
+        } else {
+          showAlert('info', response.message);
+        }
+      } catch (error) {
+        showAlert('error', `Migration failed: ${error.message}`);
+        homebridge.toast.error('Migration failed', error.message);
+      } finally {
+        // Restore button state
+        button.disabled = false;
+        btnText.textContent = originalText;
+      }
+    }
+
+    // Show alert message
+    function showAlert(type, message) {
+      const container = document.getElementById('alertContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} show`;
+      alert.textContent = message;
+
+      container.innerHTML = '';
+      container.appendChild(alert);
+    }
+
+    // Event listeners
+    document.getElementById('bannerMigrateBtn').addEventListener('click', function() {
+      performMigration(this);
+    });
+
+    document.getElementById('bannerDismissBtn').addEventListener('click', function() {
+      bannerDismissed = true;
+      document.getElementById('migrationBanner').classList.remove('show');
+    });
+
+    document.getElementById('manualMigrateBtn').addEventListener('click', function() {
+      performMigration(this);
+    });
+
+    // Check migration status on load
+    checkMigration();
+  </script>
+</body>
+</html>
